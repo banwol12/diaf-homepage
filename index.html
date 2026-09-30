@@ -94,7 +94,7 @@ p{margin:0}
 .p-bot p{max-width:32em;font-weight:500}
 .pin{opacity:0}
 .word{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;will-change:opacity}
-.split{display:flex;flex-direction:column;align-items:center;font-size:clamp(96px,22vw,422px)}
+.split{display:flex;justify-content:center;font-size:clamp(56px,22vw,422px);white-space:nowrap}
 .fade{pointer-events:none}
 .spread{position:absolute;left:var(--g);right:var(--g);top:50%;display:flex;justify-content:space-between;transform:translateY(-50%)}
 .cue{position:absolute;left:50%;bottom:var(--g);transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
@@ -214,13 +214,13 @@ a.pt:hover b{color:var(--red)}
 .ftr{background:var(--paper-2);padding:60px var(--g) var(--g)}
 .ftr .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g);border-top:1px solid var(--ink);padding-top:10px}
 .ftr a:hover{color:var(--red)}
-.pile{position:relative;height:clamp(200px,24vw,340px);overflow:hidden;margin-top:30px}
-.pile span{position:absolute;padding:.1em .5em;border-radius:var(--r-chip);font-family:var(--font-display);font-stretch:125%;font-weight:800;font-size:clamp(20px,3vw,48px);line-height:1.1;text-transform:uppercase;white-space:nowrap;transform:rotate(var(--r));color:var(--ink)}
+.pile{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px 18px;padding:40px 0;margin-top:10px}
+.pile span{padding:.1em .5em;border-radius:var(--r-chip);font-family:var(--font-display);font-stretch:125%;font-weight:800;font-size:clamp(20px,3vw,48px);line-height:1.1;text-transform:uppercase;white-space:nowrap;transform:rotate(var(--r));color:var(--ink)}
 .pile .lime{background:var(--lime)}.pile .lilac{background:var(--lilac)}.pile .paper{background:var(--paper);border:1px solid var(--ink)}
 .pile .red{background:var(--red);color:var(--white)}
 .pile:not(.in) span{visibility:hidden}
 .pile.in span{animation:fall .9s cubic-bezier(.55,0,1,.45) both;animation-delay:var(--d)}
-@keyframes fall{from{transform:translateY(-110%) translateY(-260px) rotate(0deg)}to{transform:rotate(var(--r))}}
+@keyframes fall{from{transform:translateY(-260px) rotate(0deg)}to{transform:rotate(var(--r))}}
 .ftr .big{font-size:clamp(40px,24vw,420px);line-height:.8;letter-spacing:-.035em;white-space:nowrap;margin-top:10px}
 .ftr .bottom{display:flex;justify-content:space-between;gap:var(--g);margin-top:25px;color:var(--fg-2)}
 
@@ -382,7 +382,7 @@ a.pt:hover b{color:var(--red)}
           theme(L, 'h2', 'p-theme pin') +
           '<div class="p-bot pin"><p>' + esc(L.note) + '</p><a class="btn" href="#/' + L.year + '">' + L.year + ' 보기 <i aria-hidden="true">→</i></a></div>' +
         '</div>' +
-        '<div class="word"><h1 class="display split" aria-label="DIAF, Digital Arts Festival"><span class="lm" aria-hidden="true"><i style="--k:0">D</i><i style="--k:1">I</i></span><span class="lm" aria-hidden="true"><i style="--k:2">A</i><i style="--k:3">F</i></span></h1></div>' +
+        '<div class="word"><h1 class="display split" aria-label="DIAF, Digital Arts Festival"><span class="lm" aria-hidden="true"><i style="--k:0">D</i><i style="--k:1">I</i><i style="--k:2">A</i><i style="--k:3">F</i></span></h1></div>' +
         '<div class="fade spread caps" aria-hidden="true"><span>Digital Arts</span><span>Festival</span></div>' +
         '<div class="fade cue caps" aria-hidden="true"><i></i><span>Seoul Institute of the Arts<br>Digital Arts</span></div>' +
         '<svg class="fade ring" viewBox="0 0 100 100" aria-hidden="true"><defs><path id="ringp" d="M50,50 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"/></defs><text><textPath href="#ringp" textLength="248" lengthAdjust="spacing">DIGITAL ARTS FESTIVAL ✦ SEOUL INSTITUTE OF THE ARTS ✦ </textPath></text><text x="50" y="54" text-anchor="middle" style="font-size:12px">✦</text></svg>' +
@@ -483,11 +483,17 @@ a.pt:hover b{color:var(--red)}
       A.animate(el.querySelectorAll('a.pt b'), { innerHTML: A.scrambleText({ chars: 'numbers' }), duration: 900, delay: A.stagger(130, { start: 500 }) });
     }
     el.querySelectorAll('.num').forEach(function(n){ var o = { v: 0 }; A.animate(o, { v: +n.getAttribute('data-n'), duration: 1400, ease: 'out(4)', onUpdate: function(){ n.textContent = Math.round(o.v); } }); });
-    if (el.id === 'pile') A.animate([].slice.call(el.children), {   /* 스티커: 떨어지며 기울기가 자리 잡는다 */
-      y: { to: 0, ease: 'in(3)', duration: 750 },
-      rotate: { from: function(t){ return -1.5 * parseFloat(t.style.getPropertyValue('--r')); }, to: function(t){ return parseFloat(t.style.getPropertyValue('--r')); }, ease: 'out(3)', duration: 1300 },
-      delay: A.stagger(70)
-    });
+    if (el.id === 'pile') {   /* 스티커: 화면 위에서 떨어지다가 제자리 근처에서 자석에 끌리듯 빨려 들어가 '착' 붙는다 */
+      var chips = [].slice.call(el.children);
+      chips.forEach(function(t, i){ var r = parseFloat(t.style.getPropertyValue('--r')); A.utils.set(t, { y: -(t.getBoundingClientRect().bottom + 40), x: ((i * 71) % 240) - 120, rotate: ((i * 37) % 120) - 60, opacity: 1 }); t._r = r; });
+      A.animate(chips, {
+        y: [{ to: -44, ease: 'in(2)', duration: 560 }, { to: 0, ease: 'in(5)', duration: 150 }],
+        x: [{ to: function(t, i){ return (((i * 71) % 240) - 120) * .25; }, ease: 'out(2)', duration: 560 }, { to: 0, ease: 'in(5)', duration: 150 }],
+        rotate: [{ to: function(t){ return t._r * 3; }, ease: 'out(2)', duration: 560 }, { to: function(t){ return t._r; }, ease: 'in(5)', duration: 150 }],
+        scale: [{ to: 1, duration: 710 }, { to: 1.08, ease: 'out(2)', duration: 60 }, { to: 1, ease: 'out(4)', duration: 280 }],
+        delay: A.stagger(80, { from: 'random' })
+      });
+    }
   }
   /* 화면 가운데 줄에 걸린 구역 이름을 칩에 */
   var so = hasIO ? new IntersectionObserver(function(es){ es.forEach(function(x){ if (x.isIntersecting) chip.textContent = x.target.getAttribute('data-label'); }); }, { rootMargin: '-50% 0px -50% 0px' }) : null;
@@ -537,10 +543,10 @@ a.pt:hover b{color:var(--red)}
     init();
   }
 
-  /* 푸터 스티커: 테마·연도를 흩뿌려 둔다 (자리·각도는 고정값이라 매번 같다) */
+  /* 푸터 스티커: 테마·연도를 벽에 붙인 듯 줄지어 둔다 (각도는 고정값이라 매번 같다) */
   var stickers = ['DIAF'].concat(EDITIONS.map(function(e){ return e.theme; }), EDITIONS.map(function(e){ return String(e.year); }), ['Seoul', '✦', 'Digital Arts', 'Festival', '✦']);
   document.getElementById('pile').innerHTML = stickers.map(function(t, i){
-    return '<span class="' + ['lime', 'lilac', 'red', 'paper'][i % 4] + '" style="left:' + ((i * 37) % 80 + 1) + '%;bottom:' + (i % 3) * 22 + 'px;--r:' + ((i * 53) % 50 - 25) + 'deg;--d:' + i * 70 + 'ms">' + esc(t) + '</span>';
+    return '<span class="' + ['lime', 'lilac', 'red', 'paper'][i % 4] + '" style="--r:' + ((i * 53) % 17 - 8) + 'deg;--d:' + i * 70 + 'ms">' + esc(t) + '</span>';
   }).join('');
 
   /* 서울 시각 */
@@ -554,9 +560,9 @@ a.pt:hover b{color:var(--red)}
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   window.addEventListener('hashchange', route);
-  if (A) A.utils.set(document.getElementById('pile').children, { y: -520, rotate: 0 });   /* 스티커는 화면 위에서 대기 */
+  if (A) A.utils.set([].slice.call(document.getElementById('pile').children), { opacity: 0 });   /* 스티커는 떨어지기 전까지 숨김 */
 
-  /* ── 입장: 'Seoul Institute of the Arts / Digital Arts / Digital Arts Festival' 글자 안에 액체가 차오른다.
+  /* ── 입장: 'DIGITAL ARTS FESTIVAL' 글자 안에 액체가 차오른다.
      수면은 스프링 물결 시뮬레이션(붓는 자리 출렁임 + 기포), 차오르는 양·순서는 anime.js 타임라인. 첫 로드에만. ── */
   var loader = document.getElementById('loader');
   function liquidIntro(){
@@ -576,21 +582,16 @@ a.pt:hover b{color:var(--red)}
       function setFont(c, fs){ c.font = '800 ' + fs + 'px Archivo, "Noto Sans KR", sans-serif'; if ('fontStretch' in c) c.fontStretch = 'expanded'; }
       cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
 
-      /* 줄 배치: 학교(작게) / 메인 'DIGITAL ARTS FESTIVAL'(화면 가운데, 가장 크게 · 좁은 화면은 두 줄) / 전공(작게) */
+      /* 줄 배치: 'DIGITAL ARTS FESTIVAL' 한 줄을 화면 가운데에 (좁은 화면은 DIGITAL ARTS / FESTIVAL 두 줄) */
       var maxW = W * (W < 768 ? 0.92 : 0.94), rows = [];
       function wid(t, fs){ setFont(ctx, fs); return ctx.measureText(t).width; }
       function fit(t, cap){ return Math.min(cap, 100 * maxW / wid(t, 100)); }
       var mainT = ['DIGITAL ARTS FESTIVAL'], mfs = fit(mainT[0], H * 0.24);
       if (mfs < (W < 768 ? 44 : 60)) { mainT = ['DIGITAL ARTS', 'FESTIVAL']; mfs = fit('DIGITAL ARTS', H * 0.18); }
-      rows.push({ t: 'SEOUL INSTITUTE OF THE ARTS', k: 0, fs: fit('SEOUL INSTITUTE OF THE ARTS', mfs * .5), dur: 650 });
-      mainT.forEach(function(t){ rows.push({ t: t, k: 2, fs: mfs, dur: 900, main: 1 }); });
-      rows.push({ t: 'DIGITAL ARTS', k: 1, fs: mfs * .5, dur: 650 });
+      mainT.forEach(function(t){ rows.push({ t: t, k: 2, fs: mfs, dur: 900 }); });
       rows.forEach(function(r){ setFont(ctx, r.fs); var m = ctx.measureText(r.t); r.w = m.width; r.cap = m.actualBoundingBoxAscent || r.fs * .72; r.x0 = (W - r.w) / 2; });
-      var mains = rows.filter(function(r){ return r.main; }), top = rows[0], bot = rows[rows.length - 1];
-      var mh = mains.reduce(function(a, r, i){ return a + r.cap + (i ? r.cap * .28 : 0); }, 0), y = (H - mh) / 2;
-      mains.forEach(function(r, i){ if (i) y += r.cap * .28; y += r.cap; r.base = y; });
-      top.base = mains[0].base - mains[0].cap - top.cap * .8;
-      bot.base = y + bot.cap * .8 + bot.cap;
+      var mh = rows.reduce(function(a, r, i){ return a + r.cap + (i ? r.cap * .28 : 0); }, 0), y = (H - mh) / 2;
+      rows.forEach(function(r, i){ if (i) y += r.cap * .28; y += r.cap; r.base = y; });
       rows.forEach(function(r, i){
         var n = Math.max(12, Math.round(r.w / 6));
         r.h = new Float32Array(n + 1); r.v = new Float32Array(n + 1); r.ld = new Float32Array(n + 1); r.rd = new Float32Array(n + 1);
@@ -598,7 +599,7 @@ a.pt:hover b{color:var(--red)}
       });
       /* 글자 모양(가리개)과 윤곽선은 한 번만 그려 둔다 */
       var mk = canvas(), ol = canvas();
-      rows.forEach(function(r){ setFont(mk, r.fs); setFont(ol, r.fs); mk.textAlign = ol.textAlign = 'left'; mk.fillText(r.t, r.x0, r.base); ol.lineWidth = r.main ? 2 : 1.4; ol.strokeStyle = '#000'; ol.strokeText(r.t, r.x0, r.base); });
+      rows.forEach(function(r){ setFont(mk, r.fs); setFont(ol, r.fs); mk.textAlign = ol.textAlign = 'left'; mk.fillText(r.t, r.x0, r.base); ol.lineWidth = 1; ol.strokeStyle = '#000'; ol.strokeText(r.t, r.x0, r.base); });
 
       var oa = { v: 0 }, alive = true, last = performance.now();
       function sim(r){
