@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DIAF · Digital Arts Festival</title>
 <meta name="description" content="서울예술대학교 디지털아트전공 디지털아트 페스티벌(DIAF)의 연도별 기록.">
+<script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro', 'lock');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
@@ -223,31 +224,21 @@ a.pt:hover b{color:var(--red)}
 .ftr .big{font-size:clamp(40px,24vw,420px);line-height:.8;letter-spacing:-.035em;white-space:nowrap;margin-top:10px}
 .ftr .bottom{display:flex;justify-content:space-between;gap:var(--g);margin-top:25px;color:var(--fg-2)}
 
-/* ── 입장 (약 2.5초, wembi 인트로 변형): 라임 화면에 000→100 과 진행선, 문장이 옆에서 밀려오며 단어가 차례로 진해짐
-   → 라임이 걷히면 하늘색 창이 아래에서 올라오고 D·I·A·F 가 한 글자씩 픽셀 계단처럼 쌓여 올라온다 ── */
+/* ── 입장: 세 줄 글자 안에 액체가 차오른다 (캔버스, anime.js 가 있을 때만) ── */
 .loader{display:none}
-.intro .loader{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:var(--g);background:var(--lime);color:var(--ink);animation:ldOut .45s ease 1.45s forwards}
-.lock{overflow:hidden}
-.ld-line{font-size:clamp(22px,2.4vw,40px);font-weight:500;letter-spacing:-.02em;text-align:center;animation:ldSlide .9s var(--ease-reveal) .15s backwards}
-.ld-line span{color:rgba(0,0,0,.15);animation:ldWord .3s var(--ease-ui) forwards;animation-delay:calc(.35s + var(--k) * 80ms)}
+.intro .loader{position:fixed;inset:0;z-index:70;display:block;background:var(--paper)}
+.loader canvas{position:absolute;inset:0;width:100%;height:100%}
 .ld-count{position:absolute;left:var(--g);bottom:calc(var(--g) + 4px);font-variant-numeric:tabular-nums}
-.ld-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--ink);transform-origin:left;animation:ldBar 1.2s cubic-bezier(.65,0,.35,1) forwards}
-@keyframes ldSlide{from{transform:translateX(-22vw);opacity:0}}
-@keyframes ldWord{to{color:var(--ink)}}
-@keyframes ldBar{from{transform:scaleX(0)}}
-@keyframes ldOut{to{opacity:0;visibility:hidden}}
+.ld-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--lime);transform-origin:left;transform:scaleX(0)}
+.lock{overflow:hidden}
 .lm i{font-style:normal;display:inline-block}
-.intro .lm i{animation:build .5s steps(6,end) backwards;animation-delay:calc(1.65s + var(--k) * 80ms)}
-.intro .panel{animation:rise .8s var(--ease-reveal) 1.5s backwards}
-.intro .hdr{animation:hdrIn .7s var(--ease-reveal) 1.7s backwards}
-.intro .fade{animation:fadeUp .6s var(--ease-reveal) 1.9s backwards}
-.intro .ring{animation:fadeUp .6s var(--ease-reveal) 1.9s backwards,spin 25s linear infinite}
-.intro .hud{animation:fadeUp .5s var(--ease-reveal) 2.2s backwards}
-.intro .eyear,.intro .ebot{animation:fadeUp .8s var(--ease-reveal) 1.6s backwards}
-@keyframes build{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0)}}
-@keyframes rise{from{transform:translateY(70vh)}}
-@keyframes fadeUp{from{opacity:0;translate:0 16px}}
-@keyframes hdrIn{from{transform:translateY(-100%)}}
+/* anime.js 가 맡는 움직임은 CSS 쪽을 끈다 */
+.anim .ln>span{transform:none}
+.anim .sh.in .ln>span{animation:none}
+.anim .tl path,.anim .pt{transition:none}
+.anim .mq .track{animation:none}
+.anim .pile span{visibility:visible!important;animation:none!important}
+.anim .pv{opacity:1;transition:none}
 
 /* 화면에 들어오면 떠오르는 블록 */
 .rv{opacity:0;transform:translateY(24px);transition:transform .6s var(--ease-reveal),opacity .28s ease}
@@ -291,7 +282,7 @@ a.pt:hover b{color:var(--red)}
 </style>
 </head>
 <body>
-<div class="loader" id="loader" aria-hidden="true"><p class="ld-line"><span style="--k:0">Digital</span> <span style="--k:1">Arts</span> <span style="--k:2">Festival,</span> <span style="--k:3">year</span> <span style="--k:4">by</span> <span style="--k:5">year.</span></p><span class="ld-count caps" id="ldc">000</span><i class="ld-bar"></i></div>
+<div class="loader" id="loader" aria-hidden="true"><canvas id="ldcv"></canvas><span class="ld-count caps" id="ldc">000</span><i class="ld-bar" id="ldbar"></i></div>
 <a class="skip" href="#app">본문으로 건너뛰기</a>
 <header class="hdr" id="hdr">
   <nav class="nav" aria-label="주요 메뉴">
@@ -330,6 +321,7 @@ a.pt:hover b{color:var(--red)}
   <div class="display big" aria-hidden="true">DIAF</div>
   <div class="bottom caps"><span>© Seoul Institute of the Arts, Digital Arts</span><span>Digital Arts Festival</span></div>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js" integrity="sha384-InMmvD3VoYcY7hGjSC80aLb2bNNE4CzpX+Eq6FVDlmB0IKgDvmfPw4UY8L/M++iG" crossorigin="anonymous"></script>
 <script>
 (function(){
   'use strict';
@@ -348,6 +340,8 @@ a.pt:hover b{color:var(--red)}
   var IG = 'https://www.instagram.com/digitalartsfestival_sia/';
   var PAL = ['var(--slate)', 'var(--lilac)', 'var(--lime)'];   /* 해마다 칠하는 색 (라임·라일락은 채움 전용) */
   var RM = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var A = window.anime && !RM.matches ? window.anime : null, root = document.documentElement, introOn = false;   /* A 없으면(불러오기 실패·움직임 줄이기) CSS 만으로 동작 */
+  if (A) root.classList.add('anim');
   var app = document.getElementById('app'), hud = document.getElementById('hud');
   var chip = document.getElementById('chip'), clock = document.getElementById('clock'), menu = document.getElementById('menu');
 
@@ -398,9 +392,9 @@ a.pt:hover b{color:var(--red)}
           words('<mark>DIAF</mark>는 서울예술대학교 디지털아트전공이 해마다 여는 페스티벌입니다. 교수진과 재학생이 한 해 동안 만든 작업을 한 전시장에 모읍니다. 관객은 작품 앞에서 만지고 움직이며 작품을 완성합니다.') +
         '</p></div>' +
         '<div class="stats">' +
-          '<div class="rv" data-rv><b class="display">' + EDITIONS.length + '</b><span class="caps">Editions archived · ' + years + '</span></div>' +
-          '<div class="rv" data-rv><b class="display">' + (approx ? '<small class="ko">약 </small>' : '') + sum + '</b><span class="caps">Works shown · ' + years + '</span></div>' +
-          '<div class="rv" data-rv><b class="display">' + G.length + '</b><span class="caps">Genres · ' + esc(G.join(' / ')) + '</span></div>' +
+          '<div class="rv" data-rv><b class="display"><span class="num" data-n="' + EDITIONS.length + '">' + EDITIONS.length + '</span></b><span class="caps">Editions archived · ' + years + '</span></div>' +
+          '<div class="rv" data-rv><b class="display">' + (approx ? '<small class="ko">약 </small>' : '') + '<span class="num" data-n="' + sum + '">' + sum + '</span></b><span class="caps">Works shown · ' + years + '</span></div>' +
+          '<div class="rv" data-rv><b class="display"><span class="num" data-n="' + G.length + '">' + G.length + '</span></b><span class="caps">Genres · ' + esc(G.join(' / ')) + '</span></div>' +
         '</div></section>' +
       '<section class="sec" id="editions" data-label="Editions" style="padding-top:0">' + sh('02', EDITIONS.length + ' editions', 'Editions') + timeline() +
         '<div class="ed"><div class="ed-prev" aria-hidden="true">' + EDITIONS.map(function(e, i){
@@ -453,7 +447,7 @@ a.pt:hover b{color:var(--red)}
   }
 
   /* ── 스크롤: 첫 화면 창 넓히기 · 글자 진해지기 ── */
-  var hero, panel, word, fades = [], pins = [], stmt, ws = [], raf = 0;
+  var hero, panel, word, fades = [], pins = [], stmt, ws = [], raf = 0, mq = null, lastY = 0, boost = 0, boosting = false;
   function tick(){
     raf = 0;
     var vh = window.innerHeight, rm = RM.matches;
@@ -469,26 +463,65 @@ a.pt:hover b{color:var(--red)}
       var s = stmt.getBoundingClientRect(), n = rm ? ws.length : Math.round(clamp((vh * 0.85 - s.top) / (s.height + vh * 0.3)) * ws.length);
       for (var i = 0; i < ws.length; i++) ws[i].classList.toggle('on', i < n);
     }
+    /* 빨강 띠: 스크롤이 빠를수록 빨리 흐르다 천천히 원래 속도로 */
+    if (mq) { boost = Math.min(6, Math.max(boost, Math.abs(window.scrollY - lastY) / 10)); if (!boosting) { boosting = true; requestAnimationFrame(decay); } }
+    lastY = window.scrollY;
   }
+  function decay(){ boost *= 0.93; if (mq) mq.speed = 1 + boost; if (boost > 0.02) requestAnimationFrame(decay); else { boosting = false; if (mq) mq.speed = 1; } }
   function onScroll(){ if (!raf) raf = requestAnimationFrame(tick); }
 
   /* 화면에 들어오면 .in (제목 줄 올라오기, 선 그리기, 스티커 떨어지기) */
   var hasIO = 'IntersectionObserver' in window;
-  var io = hasIO ? new IntersectionObserver(function(es){ es.forEach(function(x){ if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { rootMargin: '0px 0px -12% 0px' }) : null;
+  var io = hasIO ? new IntersectionObserver(function(es){ es.forEach(function(x){ if (x.isIntersecting) { reveal(x.target); io.unobserve(x.target); } }); }, { rootMargin: '0px 0px -12% 0px' }) : null;
+  function reveal(el){
+    el.classList.add('in');
+    if (!A) return;
+    if (el._chars) A.animate(el._chars, { y: ['100%', '0%'], duration: 900, ease: 'out(4)', delay: A.stagger(28) });   /* 제목: 글자마다 아래에서 */
+    if (el._draw) {   /* 연도 선: 그려지고 → 점이 차례로 → 연도 숫자가 뒤섞이다 멈춤 */
+      A.animate(el._draw, { draw: ['0 0', '0 1'], duration: 1800, ease: 'inOut(3)' });
+      A.animate(el.querySelectorAll('.pt'), { opacity: [0, 1], scale: [.4, 1], duration: 700, ease: 'out(4)', delay: A.stagger(130, { start: 400 }) });
+      A.animate(el.querySelectorAll('a.pt b'), { innerHTML: A.scrambleText({ chars: 'numbers' }), duration: 900, delay: A.stagger(130, { start: 500 }) });
+    }
+    el.querySelectorAll('.num').forEach(function(n){ var o = { v: 0 }; A.animate(o, { v: +n.getAttribute('data-n'), duration: 1400, ease: 'out(4)', onUpdate: function(){ n.textContent = Math.round(o.v); } }); });
+    if (el.id === 'pile') A.animate([].slice.call(el.children), {   /* 스티커: 떨어지며 기울기가 자리 잡는다 */
+      y: { to: 0, ease: 'in(3)', duration: 750 },
+      rotate: { from: function(t){ return -1.5 * parseFloat(t.style.getPropertyValue('--r')); }, to: function(t){ return parseFloat(t.style.getPropertyValue('--r')); }, ease: 'out(3)', duration: 1300 },
+      delay: A.stagger(70)
+    });
+  }
   /* 화면 가운데 줄에 걸린 구역 이름을 칩에 */
   var so = hasIO ? new IntersectionObserver(function(es){ es.forEach(function(x){ if (x.isIntersecting) chip.textContent = x.target.getAttribute('data-label'); }); }, { rootMargin: '-50% 0px -50% 0px' }) : null;
   if (hasIO) new IntersectionObserver(function(es){ hud.classList.toggle('off', es[0].isIntersecting); }).observe(document.getElementById('ftr'));
 
   function init(){
     if (so) so.disconnect();
-    document.querySelectorAll('[data-rv]:not(.in)').forEach(function(el){ if (io) io.observe(el); else el.classList.add('in'); });
+    if (A) {
+      app.querySelectorAll('.sh .ln>span').forEach(function(s){ var h = s.closest('.sh'); h._chars = A.splitText(s, { words: false, chars: { wrap: 'clip' } }).chars; A.utils.set(h._chars, { y: '100%' }); });
+      var tlEl = app.querySelector('.tl');
+      if (tlEl) { tlEl._draw = A.svg.createDrawable(tlEl.querySelector('path')); A.utils.set(tlEl._draw, { draw: '0 0' }); A.utils.set(tlEl.querySelectorAll('.pt'), { opacity: 0, scale: .4 }); }
+      app.querySelectorAll('.num').forEach(function(n){ n.textContent = '0'; });
+      if (mq) mq.pause();
+      var track = app.querySelector('.mq .track'); mq = track ? A.animate(track, { x: ['0%', '-50%'], duration: 25000, ease: 'linear', loop: true }) : null;
+      var ey = app.querySelector('.eyear'); if (ey) A.animate(ey, { innerHTML: A.scrambleText({ chars: 'numbers' }), duration: 1000, delay: introOn ? 1900 : 150 });
+    }
+    document.querySelectorAll('[data-rv]:not(.in)').forEach(function(el){ if (io) io.observe(el); else reveal(el); });
     app.querySelectorAll('[data-label]').forEach(function(el){ if (so) so.observe(el); });
     hero = app.querySelector('.hero'); panel = hero && hero.querySelector('.panel'); word = hero && hero.querySelector('.word');
     fades = hero ? [].slice.call(hero.querySelectorAll('.fade')) : []; pins = hero ? [].slice.call(hero.querySelectorAll('.pin')) : [];
     stmt = app.querySelector('.stmt'); ws = stmt ? stmt.querySelectorAll('.w') : [];
-    var pvs = app.querySelectorAll('.pv');
+    /* 연도 목록에 올리면 미리보기 교체: anime 있으면 새 카드가 아래에서 닦이듯 올라온다 */
+    var pvs = [].slice.call(app.querySelectorAll('.pv')), cur = 0;
+    if (A) pvs.forEach(function(p, i){ A.utils.set(p, { clipPath: i ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 0% 0%)' }); });
     app.querySelectorAll('.erow[data-i]').forEach(function(row){
-      function on(){ pvs.forEach(function(p, i){ p.classList.toggle('on', String(i) === row.getAttribute('data-i')); }); }
+      function on(){
+        var i = +row.getAttribute('data-i'), nx = pvs[i]; if (!nx || i === cur) return;
+        pvs.forEach(function(p, k){ p.classList.toggle('on', k === i); p.style.zIndex = k === i ? 2 : k === cur ? 1 : 0; });
+        if (A) {
+          A.animate(nx, { clipPath: ['inset(100% 0% 0% 0%)', 'inset(0% 0% 0% 0%)'], duration: 700, ease: 'out(4)', onComplete: function(){ pvs.forEach(function(p){ if (p !== pvs[cur]) A.utils.set(p, { clipPath: 'inset(100% 0% 0% 0%)' }); }); } });
+          A.animate(nx.querySelector('.display'), { y: ['40%', '0%'], duration: 800, ease: 'out(4)' });
+        }
+        cur = i;
+      }
       row.addEventListener('mouseenter', on); row.addEventListener('focus', on);
     });
     tick();
@@ -521,16 +554,107 @@ a.pt:hover b{color:var(--red)}
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   window.addEventListener('hashchange', route);
-  /* 입장: 첫 로드에만, 움직임 줄이기면 건너뜀. 숫자는 진행선과 같은 곡선으로 000→100, 2.8초 뒤 막을 지워 주소 이동 때 다시 돌지 않게 한다 */
-  var root = document.documentElement, loader = document.getElementById('loader');
-  if (!RM.matches) {
-    var ldc = document.getElementById('ldc'), st = performance.now();
-    (function count(now){ var k = Math.min(1, (now - st) / 1200), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; ldc.textContent = ('00' + Math.round(e * 100)).slice(-3); if (k < 1) requestAnimationFrame(count); })(st);
-    root.classList.add('intro', 'lock');
-    setTimeout(function(){ root.classList.remove('lock'); }, 1900);
-    setTimeout(function(){ root.classList.remove('intro'); loader.remove(); }, 2800);
-  } else loader.remove();
+  if (A) A.utils.set(document.getElementById('pile').children, { y: -520, rotate: 0 });   /* 스티커는 화면 위에서 대기 */
+
+  /* ── 입장: 'Seoul Institute of the Arts / Digital Arts / Digital Arts Festival' 글자 안에 액체가 차오른다.
+     수면은 스프링 물결 시뮬레이션(붓는 자리 출렁임 + 기포), 차오르는 양·순서는 anime.js 타임라인. 첫 로드에만. ── */
+  var loader = document.getElementById('loader');
+  function liquidIntro(){
+    var hdr = document.getElementById('hdr'), heroEl = app.querySelector('.hero');
+    var letters = heroEl ? heroEl.querySelectorAll('.lm i') : [], panelEl = heroEl && heroEl.querySelector('.panel');
+    introOn = true; root.classList.add('intro', 'lock');
+    A.utils.set(hdr, { y: '-100%' }); A.utils.set(hud, { opacity: 0 });
+    if (heroEl) { A.utils.set(fades, { opacity: 0 }); A.utils.set(letters, { clipPath: 'inset(100% 0% 0% 0%)' }); A.utils.set(panelEl, { y: '70vh' }); }
+    var fontReady = document.fonts && document.fonts.load ? document.fonts.load('800 100px Archivo') : Promise.resolve();
+    Promise.race([fontReady, new Promise(function(r){ setTimeout(r, 2500); })]).then(start, start);
+
+    function start(){
+      var cv = document.getElementById('ldcv'), ctx = cv.getContext('2d'), W = innerWidth, H = innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+      var css = getComputedStyle(root), COL = ['--slate', '--lilac', '--lime'].map(function(v){ return css.getPropertyValue(v).trim(); });
+      var ldc = document.getElementById('ldc'), bar = document.getElementById('ldbar');
+      function canvas(){ var c = document.createElement('canvas'); c.width = W * dpr; c.height = H * dpr; var x = c.getContext('2d'); x.scale(dpr, dpr); return x; }
+      function setFont(c, fs){ c.font = '800 ' + fs + 'px Archivo, "Noto Sans KR", sans-serif'; if ('fontStretch' in c) c.fontStretch = 'expanded'; }
+      cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
+
+      /* 줄 배치: 학교(작게) / 메인 'DIGITAL ARTS FESTIVAL'(화면 가운데, 가장 크게 · 좁은 화면은 두 줄) / 전공(작게) */
+      var maxW = W * (W < 768 ? 0.92 : 0.94), rows = [];
+      function wid(t, fs){ setFont(ctx, fs); return ctx.measureText(t).width; }
+      function fit(t, cap){ return Math.min(cap, 100 * maxW / wid(t, 100)); }
+      var mainT = ['DIGITAL ARTS FESTIVAL'], mfs = fit(mainT[0], H * 0.24);
+      if (mfs < (W < 768 ? 44 : 60)) { mainT = ['DIGITAL ARTS', 'FESTIVAL']; mfs = fit('DIGITAL ARTS', H * 0.18); }
+      rows.push({ t: 'SEOUL INSTITUTE OF THE ARTS', k: 0, fs: fit('SEOUL INSTITUTE OF THE ARTS', mfs * .5), dur: 650 });
+      mainT.forEach(function(t){ rows.push({ t: t, k: 2, fs: mfs, dur: 900, main: 1 }); });
+      rows.push({ t: 'DIGITAL ARTS', k: 1, fs: mfs * .5, dur: 650 });
+      rows.forEach(function(r){ setFont(ctx, r.fs); var m = ctx.measureText(r.t); r.w = m.width; r.cap = m.actualBoundingBoxAscent || r.fs * .72; r.x0 = (W - r.w) / 2; });
+      var mains = rows.filter(function(r){ return r.main; }), top = rows[0], bot = rows[rows.length - 1];
+      var mh = mains.reduce(function(a, r, i){ return a + r.cap + (i ? r.cap * .28 : 0); }, 0), y = (H - mh) / 2;
+      mains.forEach(function(r, i){ if (i) y += r.cap * .28; y += r.cap; r.base = y; });
+      top.base = mains[0].base - mains[0].cap - top.cap * .8;
+      bot.base = y + bot.cap * .8 + bot.cap;
+      rows.forEach(function(r, i){
+        var n = Math.max(12, Math.round(r.w / 6));
+        r.h = new Float32Array(n + 1); r.v = new Float32Array(n + 1); r.ld = new Float32Array(n + 1); r.rd = new Float32Array(n + 1);
+        r.lv = { v: 0 }; r.pour = .2 + (i * .29) % .6; r.bub = []; r.col = COL[r.k];
+      });
+      /* 글자 모양(가리개)과 윤곽선은 한 번만 그려 둔다 */
+      var mk = canvas(), ol = canvas();
+      rows.forEach(function(r){ setFont(mk, r.fs); setFont(ol, r.fs); mk.textAlign = ol.textAlign = 'left'; mk.fillText(r.t, r.x0, r.base); ol.lineWidth = r.main ? 2 : 1.4; ol.strokeStyle = '#000'; ol.strokeText(r.t, r.x0, r.base); });
+
+      var oa = { v: 0 }, alive = true, last = performance.now();
+      function sim(r){
+        var n = r.h.length - 1, i, L = r.lv.v;
+        if (L > 0 && L < 1) {   /* 붓는 자리 출렁임 + 기포 */
+          r.v[Math.round(r.pour * n)] += (Math.random() - .35) * 1.6;
+          if (Math.random() < .3) r.bub.push({ x: r.x0 + Math.random() * r.w, y: r.base, s: 1 + Math.random() * 2.2, ph: Math.random() * 6 });
+        }
+        for (i = 0; i <= n; i++) { r.v[i] += -.02 * r.h[i] - .03 * r.v[i]; r.h[i] = Math.max(-r.cap * .3, Math.min(r.cap * .3, r.h[i] + r.v[i])); }
+        for (var pass = 0; pass < 2; pass++) {
+          for (i = 0; i <= n; i++) { r.ld[i] = i > 0 ? .2 * (r.h[i] - r.h[i - 1]) : 0; r.rd[i] = i < n ? .2 * (r.h[i] - r.h[i + 1]) : 0; if (i > 0) r.v[i - 1] += r.ld[i]; if (i < n) r.v[i + 1] += r.rd[i]; }
+          for (i = 0; i <= n; i++) { if (i > 0) r.h[i - 1] += r.ld[i]; if (i < n) r.h[i + 1] += r.rd[i]; }
+        }
+      }
+      function frame(now){
+        if (!alive) return;
+        var steps = Math.max(1, Math.min(3, Math.round((now - last) / 16.7))); last = now;
+        ctx.clearRect(0, 0, W, H);
+        var sum = 0;
+        rows.forEach(function(r){
+          for (var k = 0; k < steps; k++) sim(r);
+          var L = r.lv.v, n = r.h.length - 1, amp = 5 * (1 - L) * Math.min(1, L * 6) + .6, sy = r.base + 2 - L * (r.cap + 8);
+          sum += L;
+          if (L <= 0) return;
+          ctx.fillStyle = r.col; ctx.beginPath(); ctx.moveTo(r.x0 - 4, r.base + 6);
+          for (var i = 0; i <= n; i++) { var x = r.x0 - 4 + i / n * (r.w + 8); ctx.lineTo(x, sy + r.h[i] + amp * (Math.sin(x * .018 + now * .0032 + r.k) * .6 + Math.sin(x * .047 - now * .0021) * .4)); }
+          ctx.lineTo(r.x0 + r.w + 4, r.base + 6); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,.55)';
+          r.bub = r.bub.filter(function(b){ b.y -= .7 + b.s * .25; b.x += Math.sin(now * .006 + b.ph) * .3; if (b.y < sy + 3) return false; ctx.beginPath(); ctx.arc(b.x, b.y, b.s, 0, 6.283); ctx.fill(); return true; });
+        });
+        ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(mk.canvas, 0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = oa.v; ctx.drawImage(ol.canvas, 0, 0, W, H); ctx.globalAlpha = 1;
+        var avg = sum / rows.length; ldc.textContent = ('00' + Math.round(avg * 100)).slice(-3); bar.style.transform = 'scaleX(' + avg + ')';
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+
+      var fillEnd = 0; rows.forEach(function(r, i){ r.at = 150 + i * 170; fillEnd = Math.max(fillEnd, r.at + r.dur); });
+      var out = fillEnd + 150;
+      var tl = A.createTimeline({ defaults: { ease: 'out(4)' }, onComplete: done });
+      tl.add(oa, { v: 1, duration: 350, ease: 'out(2)' }, 0);
+      rows.forEach(function(r){ tl.add(r.lv, { v: 1, duration: r.dur, ease: 'inOut(2)' }, r.at); });
+      tl.add(loader, { y: ['0%', '-100%'], duration: 650, ease: 'inOut(3)' }, out);
+      if (heroEl) {
+        tl.add(panelEl, { y: ['70vh', '0vh'], duration: 900 }, out + 100)
+          .add(letters, { clipPath: ['inset(100% 0% 0% 0%)', 'inset(0% 0% 0% 0%)'], duration: 500, ease: A.steps(6), delay: A.stagger(80) }, out + 250)
+          .add(fades, { opacity: [0, 1], duration: 600, delay: A.stagger(60) }, out + 500);
+      }
+      tl.add(hdr, { y: ['-100%', '0%'], duration: 700 }, out + 300)
+        .add(hud, { opacity: [0, 1], duration: 500 }, out + 750);
+      setTimeout(function(){ root.classList.remove('lock'); }, out + 400);
+      function done(){ alive = false; introOn = false; root.classList.remove('intro', 'lock'); loader.remove(); }
+    }
+  }
   route();
+  if (A) liquidIntro(); else { root.classList.remove('intro', 'lock'); loader.remove(); }
 })();
 </script>
 </body>
