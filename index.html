@@ -223,6 +223,31 @@ a.pt:hover b{color:var(--red)}
 .ftr .big{font-size:clamp(40px,24vw,420px);line-height:.8;letter-spacing:-.035em;white-space:nowrap;margin-top:10px}
 .ftr .bottom{display:flex;justify-content:space-between;gap:var(--g);margin-top:25px;color:var(--fg-2)}
 
+/* ── 입장 (약 2초): 연도가 2023→2025 로 굴러가고 → 막이 위로 걷히면 → DI/AF 가 올라오고 창이 열린다 ── */
+.loader{display:none}
+.intro .loader{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;justify-content:space-between;padding:var(--g);background:var(--paper);animation:ldOut .7s var(--ease-reveal) 1.1s forwards}
+.lock{overflow:hidden}
+.ld-row{display:flex;justify-content:space-between}
+.ld-year{align-self:center;height:1em;overflow:hidden;font-size:clamp(72px,14vw,250px)}
+.ld-col{display:flex;flex-direction:column;line-height:1;animation:ldRoll .9s var(--ease-ui) .15s forwards}
+.ld-bar{position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--lime);transform-origin:left;animation:ldBar 1.1s var(--ease-ui) forwards}
+@keyframes ldRoll{to{transform:translateY(calc(-100% + 1em))}}
+@keyframes ldBar{from{transform:scaleX(0)}}
+@keyframes ldOut{to{transform:translateY(-100%)}}
+.lm{display:block;overflow:hidden;padding-bottom:.04em}
+.lm>span{display:block}
+.intro .lm>span{animation:lineUp .8s var(--ease-reveal) 1.2s backwards}
+.intro .lm+.lm>span{animation-delay:1.32s}
+.intro .panel{animation:open .9s var(--ease-reveal) 1.25s backwards}
+.intro .fade{animation:fadeUp .7s var(--ease-reveal) 1.5s backwards}
+.intro .ring{animation:fadeUp .7s var(--ease-reveal) 1.5s backwards,spin 25s linear infinite}
+.intro .hdr{animation:hdrIn .8s var(--ease-reveal) 1.3s backwards}
+.intro .hud{animation:fadeUp .6s var(--ease-reveal) 1.6s backwards}
+.intro .eyear,.intro .ebot{animation:fadeUp .8s var(--ease-reveal) 1.25s backwards}
+@keyframes open{from{transform:scale(0)}}
+@keyframes fadeUp{from{opacity:0;translate:0 16px}}
+@keyframes hdrIn{from{transform:translateY(-100%)}}
+
 /* 화면에 들어오면 떠오르는 블록 */
 .rv{opacity:0;transform:translateY(24px);transition:transform .6s var(--ease-reveal),opacity .28s ease}
 .rv.in{opacity:1;transform:none}
@@ -265,6 +290,7 @@ a.pt:hover b{color:var(--red)}
 </style>
 </head>
 <body>
+<div class="loader" id="loader" aria-hidden="true"><div class="ld-row caps"><span>DIAF</span><span>Digital Arts Festival</span></div><div class="display ld-year"><div class="ld-col" id="ldcol"></div></div><div class="ld-row caps"><span>( archive )</span><span>Seoul Institute of the Arts</span></div><i class="ld-bar"></i></div>
 <a class="skip" href="#app">본문으로 건너뛰기</a>
 <header class="hdr" id="hdr">
   <nav class="nav" aria-label="주요 메뉴">
@@ -361,7 +387,7 @@ a.pt:hover b{color:var(--red)}
           theme(L, 'h2', 'p-theme pin') +
           '<div class="p-bot pin"><p>' + esc(L.note) + '</p><a class="btn" href="#/' + L.year + '">' + L.year + ' 보기 <i aria-hidden="true">→</i></a></div>' +
         '</div>' +
-        '<div class="word"><h1 class="display split" aria-label="DIAF, Digital Arts Festival"><span aria-hidden="true">DI</span><span aria-hidden="true">AF</span></h1></div>' +
+        '<div class="word"><h1 class="display split" aria-label="DIAF, Digital Arts Festival"><span class="lm" aria-hidden="true"><span>DI</span></span><span class="lm" aria-hidden="true"><span>AF</span></span></h1></div>' +
         '<div class="fade spread caps" aria-hidden="true"><span>Digital Arts</span><span>Festival</span></div>' +
         '<div class="fade cue caps" aria-hidden="true"><i></i><span>Seoul Institute of the Arts<br>Digital Arts</span></div>' +
         '<svg class="fade ring" viewBox="0 0 100 100" aria-hidden="true"><defs><path id="ringp" d="M50,50 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"/></defs><text><textPath href="#ringp" textLength="248" lengthAdjust="spacing">DIGITAL ARTS FESTIVAL ✦ SEOUL INSTITUTE OF THE ARTS ✦ </textPath></text><text x="50" y="54" text-anchor="middle" style="font-size:12px">✦</text></svg>' +
@@ -494,6 +520,14 @@ a.pt:hover b{color:var(--red)}
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   window.addEventListener('hashchange', route);
+  /* 입장: 첫 로드에만, 움직임 줄이기면 건너뜀. 2.3초 뒤 막을 지워 주소 이동 때 다시 돌지 않게 한다 */
+  var root = document.documentElement, loader = document.getElementById('loader');
+  if (!RM.matches) {
+    document.getElementById('ldcol').innerHTML = EDITIONS.slice().reverse().map(function(e){ return '<span>' + e.year + '</span>'; }).join('');
+    root.classList.add('intro', 'lock');
+    setTimeout(function(){ root.classList.remove('lock'); }, 1800);
+    setTimeout(function(){ root.classList.remove('intro'); loader.remove(); }, 2300);
+  } else loader.remove();
   route();
 })();
 </script>
