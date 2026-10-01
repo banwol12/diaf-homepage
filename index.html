@@ -165,17 +165,17 @@ a.pt:hover b{color:var(--slate-deep)}
 .fmt h3{font-size:clamp(32px,6vw,113px);text-align:center}
 .fmt p{justify-self:end;max-width:26em;text-align:right}
 
-/* ── 04 FAQ (sakazuki 질문 목록, 네이티브 details) ── */
-.faq-wrap{display:grid;grid-template-columns:1fr 2fr;gap:var(--g)}
-.faq details{border-top:1px solid var(--ink)}
-.faq details:last-child{border-bottom:1px solid var(--ink)}
-.faq summary{list-style:none;display:grid;grid-template-columns:110px 1fr 24px;gap:var(--g);align-items:baseline;padding:22px 0;cursor:pointer}
-.faq summary::-webkit-details-marker{display:none}
-.faq .q{font-size:clamp(20px,1.8vw,28px);font-weight:500;line-height:1.3}
-.faq summary i{font-style:normal;font-size:22px;line-height:1;transition:transform var(--dur-ui) var(--ease-ui)}
-.faq details[open] summary i{transform:rotate(45deg);color:var(--slate-deep)}
-.faq summary:hover .q{color:var(--slate-deep)}
-.faq details p{margin:0 0 28px calc(110px + var(--g));max-width:38em;color:var(--fg-2)}
+/* ── 04 장르: 세로로 내리면 카드가 옆으로 흘러간다 (데스크톱), 휴대폰은 옆으로 밀기 ── */
+.hs{position:relative}
+.hs-stage{position:sticky;top:var(--hh);height:calc(100svh - var(--hh));overflow:hidden;display:flex;align-items:center}
+.hs-track{display:flex;gap:var(--g);padding:0 var(--g);will-change:transform}
+.md{flex:none;width:clamp(300px,34vw,520px);height:min(68vh,600px);border-radius:var(--r-card);background:var(--c);padding:var(--g);display:flex;flex-direction:column;justify-content:space-between;transition:background-color var(--dur-ui) var(--ease-ui)}
+.md:hover{background:var(--lime)}
+.md-top{display:flex;justify-content:space-between;border-top:1px solid var(--ink);padding-top:10px}
+.md h3{font-size:clamp(28px,2.8vw,42px);overflow-wrap:normal}
+.md p{font-weight:500;max-width:28em}
+.yrs{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.yrs span{border:1px solid var(--ink);border-radius:var(--r-chip);padding:3px 10px}
 
 /* ── 연락 블록 (wembi Mail/Phone: 라임 탭 + 라일락 알약) ── */
 .cta{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
@@ -257,13 +257,13 @@ a.pt:hover b{color:var(--slate-deep)}
   .hdr{grid-template-columns:auto 1fr}
   .nav,.hdr .btn{display:none}
   .menu-btn{display:inline-block}
-  .stmt-wrap,.faq-wrap,.two{grid-template-columns:1fr}
+  .stmt-wrap,.two{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr}
   .fmt li{grid-template-columns:1fr;gap:10px;padding:20px 12px}
   .fmt h3{text-align:left}.fmt p{justify-self:start;text-align:left}
-  .faq summary{grid-template-columns:1fr 24px;gap:6px 16px}
-  .faq summary .caps{grid-column:1/-1}
-  .faq details p{margin-left:0}
+  .hs{height:auto!important}.hs-stage{position:static;height:auto;overflow:visible}
+  .hs-track{overflow-x:auto;scroll-snap-type:x mandatory;transform:none!important;padding-bottom:10px;scrollbar-width:none}
+  .md{width:82vw;height:420px;scroll-snap-align:center}.md h3{font-size:26px}
   .p-bot{flex-direction:column;align-items:flex-start}
   .works{grid-template-columns:1fr}
   .ftr .cols{grid-template-columns:1fr 1fr}
@@ -282,6 +282,8 @@ a.pt:hover b{color:var(--slate-deep)}
   .tl path{stroke-dashoffset:0;transition:none}.pt{opacity:1;transform:none;transition:none}
   .pile span{visibility:visible!important;animation:none!important}
   .w{color:var(--ink)}
+  .hs{height:auto!important}.hs-stage{position:static;height:auto;overflow:visible}
+  .hs-track{overflow-x:auto;transform:none!important;padding-bottom:10px}
 }
 </style>
 </head>
@@ -293,7 +295,7 @@ a.pt:hover b{color:var(--slate-deep)}
     <a class="roll" href="#/about"><span>About</span><span aria-hidden="true">About</span></a>
     <a class="roll" href="#/editions"><span>Editions</span><span aria-hidden="true">Editions</span></a>
     <a class="roll" href="#/format"><span>Format</span><span aria-hidden="true">Format</span></a>
-    <a class="roll" href="#/faq"><span>FAQ</span><span aria-hidden="true">FAQ</span></a>
+    <a class="roll" href="#/mediums"><span>Mediums</span><span aria-hidden="true">Mediums</span></a>
   </nav>
   <a class="mark" href="#/" aria-label="DIAF 처음으로">DIAF</a>
   <div class="side">
@@ -308,7 +310,7 @@ a.pt:hover b{color:var(--slate-deep)}
     <a class="display" href="#/about">About</a>
     <a class="display" href="#/editions">Editions</a>
     <a class="display" href="#/format">Format</a>
-    <a class="display" href="#/faq">FAQ</a>
+    <a class="display" href="#/mediums">Mediums</a>
   </nav>
   <div class="menu-foot caps"><a href="https://www.instagram.com/digitalartsfestival_sia/" target="_blank" rel="noopener">(IG)</a><span>Seoul Institute of the Arts</span></div>
 </dialog>
@@ -356,7 +358,15 @@ a.pt:hover b{color:var(--slate-deep)}
   function theme(e, tag, cls){ return '<' + tag + ' class="display ' + (cls || '') + (e.ko ? ' ko' : '') + '">' + esc(e.theme) + '</' + tag + '>'; }
   function kv(e){ return e.kv ? '<img src="' + esc(e.kv) + '" alt="DIAF ' + e.year + ' 대표 이미지">' : ''; }
   function words(html){ return html.split(' ').map(function(w){ return '<span class="w">' + w + '</span>'; }).join(' '); }
-  function qa(i, q, a){ return '<details><summary><span class="caps">Question 0' + i + '</span><span class="q">' + esc(q) + '</span><i aria-hidden="true">+</i></summary><p>' + esc(a) + '</p></details>'; }
+  /* 장르: 이름과 설명. 어느 해에 나왔는지는 EDITIONS 의 genres 에서 계산한다 */
+  var MEDIUMS = [
+    { en: 'Installation', ko: '인스톨레이션', desc: '전시장 공간 전체를 작품으로 씁니다. 빛과 소리, 센서가 관객의 움직임에 반응합니다.' },
+    { en: 'Game', ko: '게임', desc: '게임엔진으로 만든, 직접 플레이하는 작품입니다. 관객이 조작하는 만큼 이야기가 달라집니다.' },
+    { en: 'Media Art', ko: '미디어아트', desc: '영상과 프로젝션, 코드로 만든 화면 작업입니다. 벽과 바닥, 물체 위에 이미지를 겹칩니다.' },
+    { en: 'Animation', ko: '애니메이션', desc: '2D·3D 애니메이션과 영상 작업을 상영합니다.' },
+    { en: 'Media Performance', ko: '미디어 퍼포먼스', desc: '실시간 영상·사운드와 몸의 움직임이 함께하는 공연입니다.' }
+  ];
+  var MDC = ['var(--slate-50)', 'var(--slate-100)', 'var(--slate-200)', 'var(--slate)', 'var(--slate-100)'];
 
   /* 연도를 잇는 선: 앞뒤로 '이전 기록'과 '다음' 점을 둔다 */
   function timeline(){
@@ -416,13 +426,12 @@ a.pt:hover b{color:var(--slate-deep)}
           '<li><span class="caps">02</span><h3 class="display">Performance</h3><p class="muted">미디어 퍼포먼스와 게임, 애니메이션 상영이 전시 기간 동안 함께 열립니다.</p></li>' +
           '<li><span class="caps">03</span><h3 class="display">Archive</h3><p class="muted">전시가 끝나면 작품과 현장 기록을 웹사이트와 인스타그램, 유튜브에 남깁니다.</p></li>' +
         '</ol></section>' +
-      '<section class="sec" id="faq" data-label="FAQ">' + sh('04', 'questions', 'FAQ') +
-        '<div class="faq-wrap"><span class="caps">( ask )</span><div class="faq">' +
-          qa(1, '언제, 어디서 열리나요?', '해마다 일정과 장소가 다릅니다. 가장 최근인 DIAF ' + L.year + '는 ' + (L.date || '[자료 필요]') + ', ' + (L.venue || '[자료 필요]') + '에서 열렸습니다. 새 소식은 인스타그램에 올라옵니다.') +
-          qa(2, '관람료가 있나요?', 'DIAF ' + L.year + '는 ' + (L.admission || '[자료 필요]') + '로 관람할 수 있었습니다. 해마다 공지를 확인해 주세요.') +
-          qa(3, '어떤 작품을 볼 수 있나요?', G.join(', ') + '처럼 디지털 매체로 만든 작품을 선보입니다.') +
-          qa(4, '지난 페스티벌 기록은 어디서 보나요?', '이 사이트의 Editions 에서 연도별로 주제와 작품을 정리하고 있습니다.') +
-        '</div></div></section>' +
+      '<section class="sec" id="mediums" data-label="Mediums" style="padding-bottom:0">' + sh('04', 'what we make', 'Mediums') + '</section>' +
+      '<div class="hs" data-label="Mediums"><div class="hs-stage"><div class="hs-track">' + MEDIUMS.map(function(m, i){
+          var yrs = EDITIONS.filter(function(e){ return (e.genres || '').split(', ').indexOf(m.ko) >= 0; }).map(function(e){ return '<span class="caps">' + e.year + '</span>'; }).join('');
+          return '<article class="md" style="--c:' + MDC[i] + '"><div class="md-top caps"><span>0' + (i + 1) + '</span><span>( ' + m.ko + ' )</span></div>' +
+            '<h3 class="display">' + esc(m.en) + '</h3><div><p>' + esc(m.desc) + '</p><div class="yrs" aria-label="나온 해">' + yrs + '</div></div></article>';
+        }).join('') + '</div></div></div>' +
       '<section class="sec cta" data-label="Contact"><span class="caps">( stay in touch )</span>' +
         '<a class="blk lime" href="' + IG + '" target="_blank" rel="noopener">Instagram <i aria-hidden="true">↗</i></a>' +
         '<a class="blk slate" href="#/editions">Archive <i aria-hidden="true">→</i></a></section>';
@@ -451,7 +460,14 @@ a.pt:hover b{color:var(--slate-deep)}
   }
 
   /* ── 스크롤: 첫 화면 창 넓히기 · 글자 진해지기 ── */
-  var hero, panel, word, fades = [], pins = [], stmt, ws = [], raf = 0, mq = null, lastY = 0, boost = 0, boosting = false;
+  var hero, panel, word, fades = [], pins = [], stmt, ws = [], raf = 0, mq = null, lastY = 0, boost = 0, boosting = false, hs, hsTrack, hsOn = false;
+  /* 장르 카드 흐름: 넓은 화면에서만, 카드가 넘치는 만큼 세로 길이를 준다 */
+  function sizeHs(){
+    hsOn = !!hs && window.innerWidth > 768 && !RM.matches;
+    if (!hs) return;
+    hs.style.height = hsOn ? (hsTrack.scrollWidth - window.innerWidth + hs.firstChild.offsetHeight) + 'px' : '';
+    if (!hsOn) hsTrack.style.transform = '';
+  }
   function tick(){
     raf = 0;
     var vh = window.innerHeight, rm = RM.matches;
@@ -462,6 +478,10 @@ a.pt:hover b{color:var(--slate-deep)}
       word.style.opacity = 1 - clamp((p - 0.55) / 0.25);
       fades.forEach(function(el){ el.style.opacity = 1 - clamp(p / 0.3); });
       pins.forEach(function(el){ el.style.opacity = clamp((p - 0.7) / 0.2); });
+    }
+    if (hsOn) {
+      var hr = hs.getBoundingClientRect(), stageH = hs.firstChild.offsetHeight, hp = clamp((hs.firstChild.getBoundingClientRect().top - hr.top) / Math.max(1, hr.height - stageH));
+      hsTrack.style.transform = 'translateX(' + (-hp * (hsTrack.scrollWidth - window.innerWidth)) + 'px)';
     }
     if (ws.length) {
       var s = stmt.getBoundingClientRect(), n = rm ? ws.length : Math.round(clamp((vh * 0.85 - s.top) / (s.height + vh * 0.3)) * ws.length);
@@ -519,6 +539,7 @@ a.pt:hover b{color:var(--slate-deep)}
     hero = app.querySelector('.hero'); panel = hero && hero.querySelector('.panel'); word = hero && hero.querySelector('.word');
     fades = hero ? [].slice.call(hero.querySelectorAll('.fade')) : []; pins = hero ? [].slice.call(hero.querySelectorAll('.pin')) : [];
     stmt = app.querySelector('.stmt'); ws = stmt ? stmt.querySelectorAll('.w') : [];
+    hs = app.querySelector('.hs'); hsTrack = hs && hs.querySelector('.hs-track'); sizeHs();
     /* 연도 목록에 올리면 미리보기 교체: anime 있으면 새 카드가 아래에서 닦이듯 올라온다 */
     var pvs = [].slice.call(app.querySelectorAll('.pv')), cur = 0;
     if (A) pvs.forEach(function(p, i){ A.utils.set(p, { clipPath: i ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 0% 0%)' }); });
@@ -537,7 +558,7 @@ a.pt:hover b{color:var(--slate-deep)}
     tick();
   }
 
-  /* ── 주소: #/ 첫 화면, #/about·#/editions·#/format·#/faq 그 챕터, #/2025 연도 페이지 ── */
+  /* ── 주소: #/ 첫 화면, #/about·#/editions·#/format·#/mediums 그 챕터, #/2025 연도 페이지 ── */
   function route(){
     var h = location.hash.replace(/^#\/?/, ''), e = EDITIONS.filter(function(x){ return String(x.year) === h; })[0];
     if (menu.open) menu.close();
@@ -562,7 +583,8 @@ a.pt:hover b{color:var(--slate-deep)}
   menu.addEventListener('click', function(ev){ if (ev.target.closest('a,[data-close]')) menu.close(); });
   document.querySelector('[data-top]').addEventListener('click', function(ev){ ev.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
+  window.addEventListener('resize', function(){ sizeHs(); onScroll(); });
+  if (document.fonts) document.fonts.ready.then(function(){ sizeHs(); onScroll(); });   /* 서체가 늦게 오면 카드 폭이 바뀐다 */
   window.addEventListener('hashchange', route);
   if (A) A.utils.set([].slice.call(document.getElementById('pile').children), { opacity: 0 });   /* 스티커는 떨어지기 전까지 숨김 */
 
