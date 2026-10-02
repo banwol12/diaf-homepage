@@ -20,7 +20,7 @@
   --font-display:'Inter','Noto Sans KR',system-ui,sans-serif;
   --font-label:'Source Code Pro','Noto Sans KR',ui-monospace,monospace;
   --r-chip:30px;--ease:ease;--ease-reveal:cubic-bezier(.19,1,.22,1);--dur:.3s;
-  --g:24px;--sec:80px;--hh:57px;
+  --g:24px;--sec:80px;--hh:60px;
 }
 @media (max-width:768px){:root{--g:16px;--sec:56px}}
 *,*::before,*::after{box-sizing:border-box}
@@ -54,12 +54,16 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 
 /* ── 헤더: 로고 / 슬래시 메뉴 / 시각·버튼 ── */
 .hdr{position:sticky;top:0;z-index:40;background:var(--ground);border-bottom:1px solid var(--ink);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--g);align-items:center;padding:12px var(--g);min-height:var(--hh)}
-.mark{font-size:20px}
-.slnav{justify-self:center;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-weight:500}
+/* 헤더 글자: 메뉴 18px, DIAF 는 메뉴보다 25% 크게(22.5px)·한 단계 굵게 */
+.hdr{--nav-fs:18px}
+.mark{font-size:calc(var(--nav-fs) * 1.25);font-weight:600;letter-spacing:-.02em}
+.slnav{justify-self:center;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-weight:500;font-size:var(--nav-fs)}
 .slnav span{color:var(--muted)}
 .slnav a.on{text-decoration:underline;text-underline-offset:4px}
 .side{display:flex;gap:16px;align-items:center;justify-content:flex-end}
 .clock{font-variant-numeric:tabular-nums;color:var(--muted)}
+.hdr .lbl{font-size:14px}
+.hdr .btn.sm{font-size:13px;padding:10px 18px}
 .menu-btn{display:none}
 .menu{width:100%;max-width:none;height:100%;max-height:none;margin:0;border:0;padding:0 var(--g) var(--g);background:var(--ground);color:var(--ink)}
 .menu::backdrop{background:rgba(0,0,0,.72)}
@@ -236,7 +240,7 @@ a.pt:hover{opacity:.5}
 }
 @media (max-width:768px){
   .hdr{grid-template-columns:auto 1fr}
-  .slnav,.side .clock,.side .ig,.side .btn{display:none}
+  .slnav,.side .clock,.side .btn{display:none}
   .menu-btn{display:inline-block}
   .two,.cta{grid-template-columns:1fr}
   .hero-foot{grid-template-columns:1fr}.hero-side{align-items:flex-start;text-align:left;flex-direction:row;justify-content:space-between}
@@ -276,7 +280,6 @@ a.pt:hover{opacity:.5}
   </nav>
   <div class="side">
     <span class="lbl clock" id="clock" aria-label="서울 현재 시각"></span>
-    <a class="lbl ul ig" href="https://www.instagram.com/digitalartsfestival_sia/" target="_blank" rel="noopener" aria-label="DIAF 인스타그램">(IG)</a>
     <a class="btn sm" href="#/editions">Archive <i aria-hidden="true">→</i></a>
     <button class="lbl menu-btn" type="button" aria-haspopup="dialog" aria-controls="menu">Menu</button>
   </div>
