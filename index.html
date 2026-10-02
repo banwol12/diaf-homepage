@@ -260,6 +260,7 @@ a.pt:hover{opacity:.5}
 .cdot{position:fixed;left:0;top:0;z-index:91;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;opacity:0;will-change:transform}
 .ctag{position:fixed;left:0;top:0;z-index:91;pointer-events:none;opacity:0;scale:.85;transform-origin:0 0;background:var(--white);color:var(--ink);border:1px solid var(--ink);padding:3px 7px;font-family:var(--font-label);font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;transition:opacity .2s ease,scale .35s var(--ease-reveal)}
 .ctag.show{opacity:1;scale:1}
+.ctag.center{background:none;border-color:transparent;translate:-50% -50%;transform-origin:50% 50%}   /* 연도 점: 라임 동그라미 안 'OPEN' */
 
 /* 터치 화면: 마우스 올림 대신 누르는 순간 반응 */
 @media (hover:none){
@@ -620,17 +621,11 @@ a.pt:hover{opacity:.5}
       s.vel = (s.vel - w * tmp) * e; s.v = t + (c + tmp) * e;
     }
     function jump(x, y){ [bx, gx, D[0].x, D[1].x].forEach(function(s){ s.v = x; s.vel = 0; }); [by, gy, D[0].y, D[1].y].forEach(function(s){ s.v = y; s.vel = 0; }); }
-    /* 감쌀 영역: 연도 점은 점 + 위 글자(연도·주제)를 한 덩어리로 */
-    function box(t){
-      var r = t.getBoundingClientRect(), sp = t.matches('.pt') && t.querySelector('span');
-      if (!sp) return r;
-      var q = sp.getBoundingClientRect(), l = Math.min(r.left, q.left), tp = Math.min(r.top, q.top);
-      return { left: l, top: tp, width: Math.max(r.right, q.right) - l, height: Math.max(r.bottom, q.bottom) - tp };
-    }
     function mode(t){
       if (!t) return '';
       if (t.matches('.btn,.ib')) return 'own';
-      var r = box(t);
+      if (t.matches('.pt')) return 'ring';   /* 연도 점: 처음 만든 때처럼 라임 동그라미 + OPEN */
+      var r = t.getBoundingClientRect();
       return t.matches('.prow,.tile') || r.height > 140 || r.width > 640 ? 'pill' : 'hug';
     }
     function label(t){
@@ -649,18 +644,19 @@ a.pt:hover{opacity:.5}
       var el = seen ? document.elementFromPoint(mx, my) : null, c = el && el.closest('a,button');
       if (c) { hov = c; leaveAt = 0; } else if (hov) { if (!leaveAt) leaveAt = now; else if (now - leaveAt > 90) hov = null; }
       if (el !== under) { under = el; liq.classList.toggle('dark', !!el && !!el.closest('.cta,.ftr')); }   /* 검정 구역에서만 반전 — 흰 바탕의 검정 점 위에서 보라색이 되던 문제 */
-      var m = mode(hov), txt = m === 'pill' && seen ? label(hov) : '';
+      var m = mode(hov), ring = m === 'ring', txt = !seen ? '' : m === 'pill' ? label(hov) : ring ? 'Open' : '';
       liq.classList.toggle('own', m === 'own');
       if (tag.textContent !== txt && txt) tag.textContent = txt;
-      tag.classList.toggle('show', !!txt);
+      tag.classList.toggle('show', !!txt); tag.classList.toggle('center', ring);
       /* 2) 목표 모양: 감쌀 때는 요소 테두리 + 6px, 아니면 작은 물방울(꼬리표·버튼일 땐 더 작게) */
-      var tx = mx, ty = my, tw = 18, th = 18, tr = 9, hug = m === 'hug';
+      var tx = mx, ty = my, tw = 18, th = 18, tr = 9, hug = m === 'hug' || ring;
       if (hug) {
-        var r = box(hov);
+        var r = hov.getBoundingClientRect();
         if (prev && prev.el === hov) { bx.v += r.left - prev.l; by.v += r.top - prev.t; }   /* 스크롤로 요소가 움직이면 형광펜도 그만큼 같이 (늦게 끌려가지 않게) */
         prev = { el: hov, l: r.left, t: r.top };
         var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        tw = r.width + 12; th = r.height + 12; tr = 4; tx = cx + (mx - cx) * .06; ty = cy + (my - cy) * .06;
+        if (ring) { tw = th = 84; tr = 42; tx = cx + (mx - cx) * .15; ty = cy + (my - cy) * .15; }   /* 점 중심에 붙되 마우스 쪽으로 15% */
+        else { tw = r.width + 12; th = r.height + 12; tr = 4; tx = cx + (mx - cx) * .06; ty = cy + (my - cy) * .06; }
       } else { prev = null; if (m) { tw = th = 10; tr = 5; } }
       sd(bx, tx, hug ? .1 : .06, dt); sd(by, ty, hug ? .1 : .06, dt);
       sd(bw, tw, .16, dt); sd(bh, th, .16, dt); sd(br, tr, .14, dt);
@@ -677,7 +673,7 @@ a.pt:hover{opacity:.5}
         drops[i].style.transform = 'translate3d(' + (d.x.v - d.s / 2) + 'px,' + (d.y.v - d.s / 2) + 'px,0) scale(' + d.k + ')';
       });
       dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
-      sd(gx, mx + 18, .07, dt); sd(gy, my + 20, .07, dt);
+      sd(gx, ring ? bx.v : mx + 18, ring ? .04 : .07, dt); sd(gy, ring ? by.v + 22 : my + 20, ring ? .04 : .07, dt);   /* OPEN 은 점과 겹치지 않게 동그라미 아래쪽 */
       tag.style.transform = 'translate3d(' + gx.v + 'px,' + gy.v + 'px,0)';
       requestAnimationFrame(frame);
     }
