@@ -20,7 +20,7 @@
   --font-display:'Inter','Noto Sans KR',system-ui,sans-serif;
   --font-label:'Source Code Pro','Noto Sans KR',ui-monospace,monospace;
   --r-chip:30px;--ease:ease;--ease-reveal:cubic-bezier(.19,1,.22,1);--dur:.3s;
-  --g:24px;--sec:80px;--hh:60px;
+  --g:24px;--sec:64px;--hh:60px;
 }
 @media (max-width:768px){:root{--g:16px;--sec:56px}}
 *,*::before,*::after{box-sizing:border-box}
@@ -54,9 +54,9 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 
 /* ── 헤더: 로고 / 슬래시 메뉴 / 시각·버튼 ── */
 .hdr{position:sticky;top:0;z-index:40;background:var(--ground);border-bottom:1px solid var(--ink);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--g);align-items:center;padding:12px var(--g);min-height:var(--hh)}
-/* 헤더 글자: 메뉴 18px, DIAF 는 메뉴보다 25% 크게(22.5px)·한 단계 굵게 */
-.hdr{--nav-fs:18px}
-.mark{font-size:calc(var(--nav-fs) * 1.25);font-weight:600;letter-spacing:-.02em}
+/* 헤더 글자: 메뉴 17px, DIAF 25px·한 단계 굵게 */
+.hdr{--nav-fs:17px}
+.mark{font-size:25px;font-weight:600;letter-spacing:-.02em}
 .slnav{justify-self:center;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-weight:500;font-size:var(--nav-fs)}
 .slnav span{color:var(--muted)}
 .slnav a.on{text-decoration:underline;text-underline-offset:4px}
@@ -76,8 +76,8 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 /* ── 구역 공통 ── */
 .sec{padding:var(--sec) var(--g);border-bottom:1px solid var(--ink)}
 .alt{background:var(--ground-alt)}
-.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:var(--g)}
-.intro-p{font-size:clamp(20px,1.8vw,24px);line-height:1.35;max-width:760px;letter-spacing:-.01em}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);gap:var(--g)}
+.intro-p{font-size:clamp(22px,2.1vw,30px);line-height:1.3;max-width:900px;letter-spacing:-.015em}
 .lead{font-size:clamp(18px,1.6vw,22px);line-height:1.5;max-width:40em}
 .rw{word-break:keep-all}
 
@@ -92,7 +92,7 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 .tile:hover .chip,.tile:focus-visible .chip{opacity:1}
 .hero-foot{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--g);padding:32px 0 40px;border-bottom:1px solid var(--ink)}
 .hero-h{font-size:clamp(44px,9.4vw,180px);line-height:.92}
-.hl{display:block;overflow:hidden;padding-bottom:.06em}
+.hl{display:block;overflow:hidden;padding-bottom:.22em;margin-bottom:-.16em}
 .hl>span{display:block}
 .hero-side{display:flex;flex-direction:column;align-items:flex-end;gap:24px;text-align:right}
 
@@ -101,7 +101,7 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 .w{color:var(--n-200);transition:color var(--dur) var(--ease)}
 .w.on{color:var(--ink)}
 mark{background:var(--lime);color:inherit;padding:0 .1em}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);margin-top:var(--sec)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);margin-top:48px}
 .stat{padding:16px 20px 24px;border-left:1px solid var(--grid-line);display:flex;flex-direction:column}
 .stat:first-child{border-left:0;padding-left:0}
 .stat b{font-size:clamp(40px,4.4vw,64px);margin-top:40px}
@@ -114,12 +114,12 @@ mark{background:var(--lime);color:inherit;padding:0 .1em}
 .sl.on,.sl:hover{color:var(--ink)}
 .sl.on{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:2px}
 .sep{color:var(--n-300)}
-.sl-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px var(--g);margin:24px 0;max-width:640px}
+.sl-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px var(--g);margin:20px 0;max-width:760px}
 .sl-detail p{grid-column:1/-1}
 .yrs{display:flex;gap:8px;flex-wrap:wrap}
 
 /* ── 03 역대 페스티벌: 연도를 잇는 선 + 프로젝트 목록 ── */
-.tl-wrap{overflow-x:auto;margin:40px calc(var(--g) * -1) 8px;padding:0 var(--g);scrollbar-width:none}
+.tl-wrap{overflow-x:auto;margin:24px calc(var(--g) * -1) 8px;padding:0 var(--g);scrollbar-width:none}
 .tl{position:relative;height:200px;min-width:760px}
 .tl svg{position:absolute;left:0;top:96px;width:100%;height:100px;overflow:visible}
 .tl path{fill:none;stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2s var(--ease-reveal)}
@@ -131,7 +131,7 @@ mark{background:var(--lime);color:inherit;padding:0 .1em}
 .pt em{font-style:normal}
 .pt b{font-family:var(--font-display);font-weight:500;font-size:24px;letter-spacing:-.035em;line-height:1}
 a.pt:hover{opacity:.5}
-.plist{margin-top:48px;border-top:1px solid var(--ink)}
+.plist{margin-top:24px;border-top:1px solid var(--ink)}
 .prow{display:grid;grid-template-columns:96px minmax(0,1fr) minmax(0,.6fr) minmax(0,.4fr) 24px;gap:var(--g);align-items:center;padding:16px 0;border-bottom:1px solid var(--ink)}
 .thumb{aspect-ratio:4/3;overflow:hidden;position:relative}
 .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
@@ -144,8 +144,8 @@ a.pt:hover{opacity:.5}
 .more{margin-top:32px}
 
 /* ── 04 진행 방식: 세 칸 (회색 칸 나눔) ── */
-.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:48px;border-top:1px solid var(--ink)}
-.col{padding:20px 20px 32px;border-left:1px solid var(--grid-line);display:flex;flex-direction:column;gap:16px;min-height:260px;transition:background-color var(--dur) var(--ease)}
+.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:32px;border-top:1px solid var(--ink)}
+.col{padding:20px 20px 32px;border-left:1px solid var(--grid-line);display:flex;flex-direction:column;gap:32px;transition:background-color var(--dur) var(--ease)}
 .col:first-child{border-left:0;padding-left:0}
 .col:hover{background:var(--ground-alt)}
 .col-top{display:flex;justify-content:space-between;gap:12px}
@@ -398,7 +398,7 @@ a.pt:hover{opacity:.5}
         '<h3 class="display slash">' + MEDIUMS.map(function(m, i){ return (i ? '<span class="sep" aria-hidden="true"> / </span>' : '') + '<button class="sl' + (i === med ? ' on' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + (i === med) + '">' + esc(m.en) + '</button>'; }).join('') + '</h3>' +
         '<div class="sl-detail" id="sld" aria-live="polite">' + medDetail(med) + '</div>' +
         '<a class="btn outline sm" href="#/editions">See all editions <i aria-hidden="true">→</i></a></div></div></section>' +
-      '<section class="sec" id="editions"><div class="two">' + lbl('( editions )') + '<p class="display intro-p rw" data-rv>해마다 하나의 주제를 정하고, 그해의 작업을 한 전시장에 모읍니다. 지금까지의 DIAF 입니다.</p></div>' + timeline() +
+      '<section class="sec" id="editions"><div class="two">' + lbl('( editions )') + '<p class="display intro-p rw" data-rv>해마다 하나의 주제를 정하고, 그해의 작업을 한 전시장에 모읍니다. 지금까지의 DIAF입니다.</p></div>' + timeline() +
         '<div class="plist">' + EDITIONS.map(function(e, i){
           return '<a class="prow rv" data-rv href="#/' + e.year + '"><span class="thumb" style="background:' + PAL[i % 3] + '">' + kv(e) + '</span><span class="display ptitle">' + esc(e.theme) + '</span><span class="lbl muted ploc">' + (e.venue ? esc(e.venue) : 'Venue —') + '</span><span class="lbl"><span class="chip">' + e.year + '</span></span><span class="parr" aria-hidden="true">→</span></a>';
         }).join('') + '</div>' +
