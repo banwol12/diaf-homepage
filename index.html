@@ -626,7 +626,13 @@ a.pt:hover{opacity:.5}
       function done(){ alive = false; introOn = false; root.classList.remove('intro', 'lock'); loader.remove(); }
     }
   }
+  /* 새로고침·링크로 들어오면 늘 첫 구역부터: 브라우저 스크롤 복원을 끄고, 구역 주소(#/about 등)는 #/ 로 바꾼다.
+     연도 주소(#/2025)는 그 연도 페이지의 맨 위에서 연다. 메뉴로 구역 이동하는 건 그대로. */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  var h0 = location.hash.replace(/^#\/?/, '');
+  if (h0 && !EDITIONS.some(function(x){ return String(x.year) === h0; })) history.replaceState(null, '', location.pathname + location.search + '#/');
   route();
+  window.scrollTo(0, 0);
   if (A) liquidIntro(); else { root.classList.remove('intro', 'lock'); loader.remove(); }
 })();
 </script>
