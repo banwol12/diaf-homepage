@@ -135,7 +135,13 @@ html:not(.anim) .tl.in path{stroke-dashoffset:0}
 .pt span{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:170px;text-align:center;display:flex;flex-direction:column;gap:2px}
 .pt em{font-style:normal}
 .pt b{font-family:var(--font-display);font-weight:500;font-size:24px;letter-spacing:-.02em;line-height:1}
-a.pt:hover{opacity:.5}
+/* 연도 점: 올리면 검정 원만 2.2배로 커지고, 안쪽이 아래부터 라임으로 차오른다 (인트로 액체처럼, 위 글자는 그대로) */
+a.pt{background:none}
+a.pt::before,a.pt::after{content:'';position:absolute;border-radius:50%;transition:transform .5s var(--ease-reveal),clip-path .6s var(--ease-reveal)}
+a.pt::before{inset:0;background:var(--ink)}
+a.pt::after{inset:1.5px;background:var(--lime);clip-path:inset(100% 0 0 0)}
+a.pt:hover::before,a.pt:hover::after,a.pt:focus-visible::before,a.pt:focus-visible::after{transform:scale(2.2)}
+a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-delay:0s,.08s}
 .plist{margin-top:24px;border-top:1px solid var(--ink)}
 .prow{position:relative;display:grid;grid-template-columns:96px minmax(0,1fr) minmax(0,.6fr) minmax(0,.4fr) 24px;gap:var(--g);align-items:center;padding:16px 0;border-bottom:1px solid var(--ink)}
 .thumb{aspect-ratio:4/3;overflow:hidden;position:relative;transform-origin:0 50%;transition:transform .45s var(--ease-reveal)}
@@ -260,7 +266,6 @@ a.pt:hover{opacity:.5}
 .cdot{position:fixed;left:0;top:0;z-index:91;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;opacity:0;will-change:transform}
 .ctag{position:fixed;left:0;top:0;z-index:91;pointer-events:none;opacity:0;scale:.85;transform-origin:0 0;background:var(--white);color:var(--ink);border:1px solid var(--ink);padding:3px 7px;font-family:var(--font-label);font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;transition:opacity .2s ease,scale .35s var(--ease-reveal)}
 .ctag.show{opacity:1;scale:1}
-.ctag.center{background:none;border-color:transparent;translate:-50% -50%;transform-origin:50% 50%}   /* 연도 점: 라임 동그라미 안 'OPEN' */
 
 /* 터치 화면: 마우스 올림 대신 누르는 순간 반응 */
 @media (hover:none){
@@ -624,13 +629,14 @@ a.pt:hover{opacity:.5}
     function mode(t){
       if (!t) return '';
       if (t.matches('.btn,.ib')) return 'own';
-      if (t.matches('.pt')) return 'ring';   /* 연도 점: 처음 만든 때처럼 라임 동그라미 + OPEN */
+      if (t.matches('.pt')) return 'own';   /* 연도 점: 라임은 검정 원 안에만 — 커서 물방울은 숨기고 꼬리표만 */
       var r = t.getBoundingClientRect();
       return t.matches('.prow,.tile') || r.height > 140 || r.width > 640 ? 'pill' : 'hug';
     }
     function label(t){
       if (t.matches('.tile')) return 'Explore · ' + MEDIUMS[+t.getAttribute('data-m')].en;
       if (t.matches('.prow')) return 'View ' + t.getAttribute('href').slice(2) + ' →';
+      if (t.matches('.pt')) return 'Open ' + t.getAttribute('href').slice(2);
       return '';
     }
     root.classList.add('has-cur');
@@ -644,19 +650,18 @@ a.pt:hover{opacity:.5}
       var el = seen ? document.elementFromPoint(mx, my) : null, c = el && el.closest('a,button');
       if (c) { hov = c; leaveAt = 0; } else if (hov) { if (!leaveAt) leaveAt = now; else if (now - leaveAt > 90) hov = null; }
       if (el !== under) { under = el; liq.classList.toggle('dark', !!el && !!el.closest('.cta,.ftr')); }   /* 검정 구역에서만 반전 — 흰 바탕의 검정 점 위에서 보라색이 되던 문제 */
-      var m = mode(hov), ring = m === 'ring', txt = !seen ? '' : m === 'pill' ? label(hov) : ring ? 'Open' : '';
+      var m = mode(hov), txt = !seen ? '' : m === 'pill' || hov && hov.matches('.pt') ? label(hov) : '';
       liq.classList.toggle('own', m === 'own');
       if (tag.textContent !== txt && txt) tag.textContent = txt;
-      tag.classList.toggle('show', !!txt); tag.classList.toggle('center', ring);
+      tag.classList.toggle('show', !!txt);
       /* 2) 목표 모양: 감쌀 때는 요소 테두리 + 6px, 아니면 작은 물방울(꼬리표·버튼일 땐 더 작게) */
-      var tx = mx, ty = my, tw = 18, th = 18, tr = 9, hug = m === 'hug' || ring;
+      var tx = mx, ty = my, tw = 18, th = 18, tr = 9, hug = m === 'hug';
       if (hug) {
         var r = hov.getBoundingClientRect();
         if (prev && prev.el === hov) { bx.v += r.left - prev.l; by.v += r.top - prev.t; }   /* 스크롤로 요소가 움직이면 형광펜도 그만큼 같이 (늦게 끌려가지 않게) */
         prev = { el: hov, l: r.left, t: r.top };
         var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        if (ring) { tw = th = 84; tr = 42; tx = cx + (mx - cx) * .15; ty = cy + (my - cy) * .15; }   /* 점 중심에 붙되 마우스 쪽으로 15% */
-        else { tw = r.width + 12; th = r.height + 12; tr = 4; tx = cx + (mx - cx) * .06; ty = cy + (my - cy) * .06; }
+        tw = r.width + 12; th = r.height + 12; tr = 4; tx = cx + (mx - cx) * .06; ty = cy + (my - cy) * .06;
       } else { prev = null; if (m) { tw = th = 10; tr = 5; } }
       sd(bx, tx, hug ? .1 : .06, dt); sd(by, ty, hug ? .1 : .06, dt);
       sd(bw, tw, .16, dt); sd(bh, th, .16, dt); sd(br, tr, .14, dt);
@@ -673,7 +678,7 @@ a.pt:hover{opacity:.5}
         drops[i].style.transform = 'translate3d(' + (d.x.v - d.s / 2) + 'px,' + (d.y.v - d.s / 2) + 'px,0) scale(' + d.k + ')';
       });
       dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
-      sd(gx, ring ? bx.v : mx + 18, ring ? .04 : .07, dt); sd(gy, ring ? by.v + 22 : my + 20, ring ? .04 : .07, dt);   /* OPEN 은 점과 겹치지 않게 동그라미 아래쪽 */
+      sd(gx, mx + 18, .07, dt); sd(gy, my + 20, .07, dt);
       tag.style.transform = 'translate3d(' + gx.v + 'px,' + gy.v + 'px,0)';
       requestAnimationFrame(frame);
     }
