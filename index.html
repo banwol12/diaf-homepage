@@ -227,6 +227,31 @@ a.pt:hover{opacity:.5}
 .ld-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--lime);transform-origin:left;transform:scaleX(0)}
 .lock{overflow:hidden}
 
+/* ── 마우스를 따라다니는 커서: 점은 바로, 원은 늦게. 글자 링크는 반전 원, 카드·버튼은 라임 원 + 글자.
+   역대 페스티벌 줄 위에서는 그해 미리보기 카드가 따라온다. 터치·움직임 줄이기에서는 쓰지 않는다. ── */
+.has-cur,.has-cur *{cursor:none}
+.cur{position:fixed;inset:0;pointer-events:none;z-index:90;mix-blend-mode:difference;opacity:0;transition:opacity .3s ease}
+.cur.on{opacity:1}
+.cur.link{mix-blend-mode:normal}
+.cur-p{position:absolute;left:0;top:0;width:0;height:0}
+.cur-p i{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%);display:grid;place-items:center;font-style:normal}
+.cur-dot i{width:8px;height:8px;background:var(--white);transition:opacity .2s ease}
+/* 원은 84px 하나로 그려 두고 크기는 scale 로만 바꾼다 (레이아웃 재계산 없음). 테두리 2.4px × 0.43 ≈ 1px */
+.cur-ring i{width:84px;height:84px;border:2.4px solid var(--white);transform:translate(-50%,-50%) scale(.43);transition:transform .45s var(--ease-reveal),scale .3s var(--ease-reveal),background-color .3s ease,border-color .3s ease}
+.cur.txt .cur-ring i{transform:translate(-50%,-50%) scale(.71);background:var(--white)}
+.cur.link .cur-ring i{transform:translate(-50%,-50%) scale(1);background:var(--lime);border-color:var(--lime)}
+.cur.link .cur-dot i{opacity:0}
+.cur.down .cur-ring i{scale:.85}
+.cur-lbl{font-style:normal;font-family:var(--font-label);font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);opacity:0;transition:opacity .2s ease}
+.cur.link .cur-lbl{opacity:1}
+.peek{position:fixed;left:0;top:0;z-index:85;width:240px;pointer-events:none;opacity:0;transition:opacity .25s ease}
+.peek.on{opacity:1}
+.peek-in{display:block;background:var(--white);border:1px solid var(--ink);padding:8px;transform:scale(.9);transform-origin:0 50%;transition:transform .45s var(--ease-reveal)}
+.peek.on .peek-in{transform:none}
+.peek-c{display:block;aspect-ratio:4/3;background:var(--c) center/cover}
+.peek-y{display:block;margin-top:8px}
+.peek-t{display:block;font-size:20px;margin-top:2px}
+
 /* 화면에 들어오면 떠오르는 블록 (anime 없을 때) */
 .rv{opacity:0;transform:translateY(24px);transition:transform .6s var(--ease-reveal),opacity .3s ease}
 .rv.in{opacity:1;transform:none}
@@ -292,6 +317,8 @@ a.pt:hover{opacity:.5}
   <div class="menu-foot lbl"><a class="ul" href="https://www.instagram.com/digitalartsfestival_sia/" target="_blank" rel="noopener">(IG)</a><span>Seoul Institute of the Arts</span></div>
 </dialog>
 <main id="app"></main>
+<div class="cur" id="cur" aria-hidden="true"><span class="cur-p cur-dot"><i></i></span><span class="cur-p cur-ring"><i><em class="cur-lbl"></em></i></span></div>
+<div class="peek" id="peek" aria-hidden="true"><span class="peek-in"><span class="peek-c"></span><span class="lbl muted peek-y"></span><b class="display peek-t"></b></span></div>
 <footer class="ftr" id="ftr">
   <div class="fcols">
     <div class="fcol"><p class="lbl">Menu</p><nav aria-label="푸터 메뉴"><a href="#/about">About /</a><a href="#/mediums">Mediums /</a><a href="#/editions">Editions /</a><a href="#/format">Format /</a><a href="#/index">Index</a></nav></div>
@@ -400,7 +427,7 @@ a.pt:hover{opacity:.5}
         '<a class="btn outline sm" href="#/editions">See all editions <i aria-hidden="true">→</i></a></div></div></section>' +
       '<section class="sec" id="editions"><div class="two">' + lbl('( editions )') + '<p class="display intro-p rw" data-rv>해마다 하나의 주제를 정하고, 그해의 작업을 한 전시장에 모읍니다. 지금까지의 DIAF입니다.</p></div>' + timeline() +
         '<div class="plist">' + EDITIONS.map(function(e, i){
-          return '<a class="prow rv" data-rv href="#/' + e.year + '"><span class="thumb" style="background:' + PAL[i % 3] + '">' + kv(e) + '</span><span class="display ptitle">' + esc(e.theme) + '</span><span class="lbl muted ploc">' + (e.venue ? esc(e.venue) : 'Venue —') + '</span><span class="lbl"><span class="chip">' + e.year + '</span></span><span class="parr" aria-hidden="true">→</span></a>';
+          return '<a class="prow rv" data-rv href="#/' + e.year + '" data-y="' + e.year + '" data-t="' + esc(e.theme) + '" data-c="' + PAL[i % 3] + '"' + (e.kv ? ' data-kv="' + esc(e.kv) + '"' : '') + '><span class="thumb" style="background:' + PAL[i % 3] + '">' + kv(e) + '</span><span class="display ptitle">' + esc(e.theme) + '</span><span class="lbl muted ploc">' + (e.venue ? esc(e.venue) : 'Venue —') + '</span><span class="lbl"><span class="chip">' + e.year + '</span></span><span class="parr" aria-hidden="true">→</span></a>';
         }).join('') + '</div>' +
         '<div class="more"><a class="btn" href="#/index">Explore the index <i aria-hidden="true">→</i></a></div></section>' +
       '<section class="sec" id="format"><div class="two">' + lbl('( format )') + '<p class="display intro-p rw" data-rv>전시와 공연, 그리고 기록. 세 가지 방식으로 페스티벌을 엽니다.</p></div>' +
@@ -530,6 +557,33 @@ a.pt:hover{opacity:.5}
   document.querySelector('.menu-btn').addEventListener('click', function(){ menu.showModal(); });
   menu.addEventListener('click', function(ev){ if (ev.target.closest('a,[data-close]')) menu.close(); });
   document.querySelector('[data-top]').addEventListener('click', function(ev){ ev.preventDefault(); window.scrollTo({ top: 0, behavior: RM.matches ? 'auto' : 'smooth' }); });
+  /* ── 마우스를 따라다니는 커서 ── */
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !RM.matches) (function(){
+    var cur = document.getElementById('cur'), dot = cur.querySelector('.cur-dot'), ring = cur.querySelector('.cur-ring'), tag = cur.querySelector('.cur-lbl');
+    var peek = document.getElementById('peek'), pc = peek.querySelector('.peek-c'), py = peek.querySelector('.peek-y'), pt = peek.querySelector('.peek-t');
+    var mx = -200, my = -200, rx = mx, ry = my, kx = mx, ky = my, seen = false;
+    root.classList.add('has-cur');
+    window.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; if (!seen) { seen = true; rx = kx = mx; ry = ky = my; cur.classList.add('on'); } }, { passive: true });
+    document.addEventListener('mouseleave', function(){ seen = false; cur.classList.remove('on'); peek.classList.remove('on'); });
+    document.addEventListener('mousedown', function(){ cur.classList.add('down'); });
+    document.addEventListener('mouseup', function(){ cur.classList.remove('down'); });
+    document.addEventListener('mouseover', function(e){
+      var t = e.target.closest('a,button'), big = t && t.closest('.prow,.tile,.btn,.pt,.ib,.chip'), row = e.target.closest('.prow');
+      cur.classList.toggle('link', !!big); cur.classList.toggle('txt', !!t && !big);
+      tag.textContent = !big ? '' : big.matches('.prow') ? 'View' : big.matches('.tile') ? 'Explore' : big.matches('.pt,.chip') ? 'Open' : big.matches('.ib') ? big.textContent : '→';
+      if (row) { pc.style.setProperty('--c', row.getAttribute('data-c')); pc.style.backgroundImage = row.getAttribute('data-kv') ? 'url("' + row.getAttribute('data-kv') + '")' : ''; py.textContent = 'DIAF ' + row.getAttribute('data-y'); pt.textContent = row.getAttribute('data-t'); }
+      peek.classList.toggle('on', !!row);
+    });
+    (function loop(){
+      rx += (mx - rx) * .2; ry += (my - ry) * .2; kx += (mx - kx) * .1; ky += (my - ky) * .1;
+      var tilt = Math.max(-8, Math.min(8, (mx - kx) * .06));
+      dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
+      ring.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0)';
+      peek.style.transform = 'translate3d(' + (kx + 56) + 'px,' + (ky - 90) + 'px,0) rotate(' + tilt + 'deg)';
+      requestAnimationFrame(loop);
+    })();
+  })();
+
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   window.addEventListener('hashchange', route);
