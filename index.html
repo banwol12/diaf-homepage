@@ -227,23 +227,20 @@ a.pt:hover{opacity:.5}
 .ld-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--lime);transform-origin:left;transform:scaleX(0)}
 .lock{overflow:hidden}
 
-/* ── 마우스를 따라다니는 커서: 점은 바로, 원은 늦게. 글자 링크는 반전 원, 카드·버튼은 라임 원 + 글자.
-   역대 페스티벌 줄 위에서는 그해 미리보기 카드가 따라온다. 터치·움직임 줄이기에서는 쓰지 않는다. ── */
+/* ── 마우스: '액체 형광펜'. 정확한 자리는 작은 점으로 늘 보이고, 라임 물방울이 늦게 따라온다(빠르면 늘어나고 작은 방울이 꼬리처럼).
+   누를 수 있는 곳에서는 물방울이 그 요소를 감싸는 형광펜이 된다 — 곱하기(multiply)라 아래 글자가 그대로 읽힌다.
+   검정 구역에서는 screen 으로 바꿔 흰 글자도 그대로. 안내 글은 커서 옆 꼬리표로만. 터치·움직임 줄이기에서는 쓰지 않는다. ── */
 .has-cur,.has-cur *{cursor:none}
-.cur{position:fixed;inset:0;pointer-events:none;z-index:90;mix-blend-mode:difference;opacity:0;transition:opacity .3s ease}
-.cur.on{opacity:1}
-.cur.link{mix-blend-mode:normal}
-.cur-p{position:absolute;left:0;top:0;width:0;height:0}
-.cur-p i{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%);display:grid;place-items:center;font-style:normal}
-.cur-dot i{width:8px;height:8px;background:var(--white);transition:opacity .2s ease}
-/* 원은 84px 하나로 그려 두고 크기는 scale 로만 바꾼다 (레이아웃 재계산 없음). 테두리 2.4px × 0.43 ≈ 1px */
-.cur-ring i{width:84px;height:84px;border:2.4px solid var(--white);transform:translate(-50%,-50%) scale(.43);transition:transform .45s var(--ease-reveal),scale .3s var(--ease-reveal),background-color .3s ease,border-color .3s ease}
-.cur.txt .cur-ring i{transform:translate(-50%,-50%) scale(.71);background:var(--white)}
-.cur.link .cur-ring i{transform:translate(-50%,-50%) scale(1);background:var(--lime);border-color:var(--lime)}
-.cur.link .cur-dot i{opacity:0}
-.cur.down .cur-ring i{scale:.85}
-.cur-lbl{font-style:normal;font-family:var(--font-label);font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);opacity:0;transition:opacity .2s ease}
-.cur.link .cur-lbl{opacity:1}
+.has-cur a:hover{opacity:1!important}   /* 형광펜이 가리키는 표시를 맡으니 반투명 효과는 끈다 (글자가 흐려지지 않게) */
+.cliq{position:fixed;inset:0;pointer-events:none;z-index:90;mix-blend-mode:multiply;opacity:0;transition:opacity .3s ease}
+.cliq.dark{mix-blend-mode:screen}
+.cliq.on,.cdot.on,.ctag.on{opacity:1}
+.cblob,.cdrop{position:absolute;left:0;top:0;background:var(--lime);transform-origin:50% 50%;will-change:transform}
+.cblob{width:18px;height:18px;border-radius:9px}
+.cdrop{border-radius:50%}
+.cdot{position:fixed;left:0;top:0;z-index:91;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;opacity:0;will-change:transform}
+.ctag{position:fixed;left:0;top:0;z-index:91;pointer-events:none;opacity:0;background:var(--white);color:var(--ink);border:1px solid var(--ink);padding:3px 7px;font-family:var(--font-label);font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;transition:opacity .2s ease}
+.ctag:empty{display:none}
 .peek{position:fixed;left:0;top:0;z-index:85;width:240px;pointer-events:none;opacity:0;transition:opacity .25s ease}
 .peek.on{opacity:1}
 .peek-in{display:block;background:var(--white);border:1px solid var(--ink);padding:8px;transform:scale(.9);transform-origin:0 50%;transition:transform .45s var(--ease-reveal)}
@@ -317,7 +314,7 @@ a.pt:hover{opacity:.5}
   <div class="menu-foot lbl"><a class="ul" href="https://www.instagram.com/digitalartsfestival_sia/" target="_blank" rel="noopener">(IG)</a><span>Seoul Institute of the Arts</span></div>
 </dialog>
 <main id="app"></main>
-<div class="cur" id="cur" aria-hidden="true"><span class="cur-p cur-dot"><i></i></span><span class="cur-p cur-ring"><i><em class="cur-lbl"></em></i></span></div>
+<div class="cliq" id="cliq" aria-hidden="true"><i class="cdrop"></i><i class="cdrop"></i><i class="cblob"></i></div><i class="cdot" id="cdot" aria-hidden="true"></i><span class="ctag" id="ctag" aria-hidden="true"></span>
 <div class="peek" id="peek" aria-hidden="true"><span class="peek-in"><span class="peek-c"></span><span class="lbl muted peek-y"></span><b class="display peek-t"></b></span></div>
 <footer class="ftr" id="ftr">
   <div class="fcols">
@@ -557,29 +554,57 @@ a.pt:hover{opacity:.5}
   document.querySelector('.menu-btn').addEventListener('click', function(){ menu.showModal(); });
   menu.addEventListener('click', function(ev){ if (ev.target.closest('a,[data-close]')) menu.close(); });
   document.querySelector('[data-top]').addEventListener('click', function(ev){ ev.preventDefault(); window.scrollTo({ top: 0, behavior: RM.matches ? 'auto' : 'smooth' }); });
-  /* ── 마우스를 따라다니는 커서 ── */
+  /* ── 마우스: 액체 형광펜 ── */
   if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !RM.matches) (function(){
-    var cur = document.getElementById('cur'), dot = cur.querySelector('.cur-dot'), ring = cur.querySelector('.cur-ring'), tag = cur.querySelector('.cur-lbl');
+    var liq = document.getElementById('cliq'), blob = liq.querySelector('.cblob'), drops = [].slice.call(liq.querySelectorAll('.cdrop'));
+    var dot = document.getElementById('cdot'), tag = document.getElementById('ctag');
     var peek = document.getElementById('peek'), pc = peek.querySelector('.peek-c'), py = peek.querySelector('.peek-y'), pt = peek.querySelector('.peek-t');
-    var mx = -200, my = -200, rx = mx, ry = my, kx = mx, ky = my, seen = false;
+    var mx = -200, my = -200, kx = mx, ky = my, seen = false, snap = null, prow = null;
+    var b = { x: mx, y: my, w: 18, h: 18, r: 9 }, D = [{ x: mx, y: my, s: 11 }, { x: mx, y: my, s: 7 }];
     root.classList.add('has-cur');
-    window.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; if (!seen) { seen = true; rx = kx = mx; ry = ky = my; cur.classList.add('on'); } }, { passive: true });
-    document.addEventListener('mouseleave', function(){ seen = false; cur.classList.remove('on'); peek.classList.remove('on'); });
-    document.addEventListener('mousedown', function(){ cur.classList.add('down'); });
-    document.addEventListener('mouseup', function(){ cur.classList.remove('down'); });
+    function show(on){ [liq, dot, tag].forEach(function(el){ el.classList.toggle('on', on); }); if (!on) peek.classList.remove('on'); }
+    window.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; if (!seen) { seen = true; b.x = kx = mx; b.y = ky = my; D.forEach(function(d){ d.x = mx; d.y = my; }); show(true); } }, { passive: true });
+    document.addEventListener('mouseleave', function(){ seen = false; show(false); });
     document.addEventListener('mouseover', function(e){
-      var t = e.target.closest('a,button'), big = t && t.closest('.prow,.tile,.btn,.pt,.ib,.chip'), row = e.target.closest('.prow');
-      cur.classList.toggle('link', !!big); cur.classList.toggle('txt', !!t && !big);
-      tag.textContent = !big ? '' : big.matches('.prow') ? 'View' : big.matches('.tile') ? 'Explore' : big.matches('.pt,.chip') ? 'Open' : big.matches('.ib') ? big.textContent : '→';
+      var t = e.target.closest('a,button'), row = e.target.closest('.prow');
+      /* 낮은 요소(글자 링크·버튼·줄·칩)는 감싸고, 큰 칸(첫 화면 장르 칸)은 감싸지 않고 꼬리표만 */
+      snap = t && t.getBoundingClientRect().height <= 140 ? t : null;
+      liq.classList.toggle('dark', bgDark(e.target));
+      tag.textContent = row ? '' : t && t.matches('.tile') ? 'Explore · ' + MEDIUMS[+t.getAttribute('data-m')].en : t && t.matches('.pt,.chip') ? 'Open ' + t.textContent.replace(/\D/g, '').slice(0, 4) : '';
       if (row) { pc.style.setProperty('--c', row.getAttribute('data-c')); pc.style.backgroundImage = row.getAttribute('data-kv') ? 'url("' + row.getAttribute('data-kv') + '")' : ''; py.textContent = 'DIAF ' + row.getAttribute('data-y'); pt.textContent = row.getAttribute('data-t'); }
-      peek.classList.toggle('on', !!row);
+      peek.classList.toggle('on', !!row); prow = row;
     });
+    /* 가리킨 지점의 바탕이 어두우면 screen, 밝으면 multiply (라임 버튼 위에서 글자가 사라지지 않게) */
+    function bgDark(el){
+      for (; el && el !== document.documentElement; el = el.parentElement) {
+        var m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
+        if (m && (m.length < 4 || +m[3] > .5)) return (.2126 * m[0] + .7152 * m[1] + .0722 * m[2]) / 255 < .5;
+      }
+      return false;
+    }
+    function ease(a, t, k){ return a + (t - a) * k; }
     (function loop(){
-      rx += (mx - rx) * .2; ry += (my - ry) * .2; kx += (mx - kx) * .1; ky += (my - ky) * .1;
-      var tilt = Math.max(-8, Math.min(8, (mx - kx) * .06));
+      var tx = mx, ty = my, tw = 18, th = 18, tr = 9;
+      if (snap && snap.isConnected) {   /* 감쌀 때: 요소 테두리 + 6px, 마우스 쪽으로 8% 끌림 */
+        var r = snap.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        tw = r.width + 12; th = r.height + 12; tr = 4; tx = cx + (mx - cx) * .08; ty = cy + (my - cy) * .08;
+      }
+      var ox = b.x, oy = b.y;
+      b.x = ease(b.x, tx, .22); b.y = ease(b.y, ty, .22); b.w = ease(b.w, tw, .22); b.h = ease(b.h, th, .22); b.r = ease(b.r, tr, .22);
+      var vx = b.x - ox, vy = b.y - oy, free = !snap, st = free ? Math.min(1.7, 1 + Math.hypot(vx, vy) * .04) : 1, ang = free ? Math.atan2(vy, vx) : 0;
+      blob.style.width = b.w + 'px'; blob.style.height = b.h + 'px'; blob.style.borderRadius = b.r + 'px';
+      blob.style.transform = 'translate3d(' + (b.x - b.w / 2) + 'px,' + (b.y - b.h / 2) + 'px,0) rotate(' + ang + 'rad) scale(' + st + ',' + (1 / st) + ')';
+      D.forEach(function(d, i){   /* 꼬리 방울: 앞 방울을 늦게 따라가고, 감쌀 때는 숨는다 */
+        var lead = i ? D[i - 1] : b; d.x = ease(d.x, lead.x, .28); d.y = ease(d.y, lead.y, .28);
+        drops[i].style.width = drops[i].style.height = d.s + 'px';
+        drops[i].style.transform = 'translate3d(' + (d.x - d.s / 2) + 'px,' + (d.y - d.s / 2) + 'px,0) scale(' + (free ? 1 : 0) + ')';
+      });
+      var pty = my - 90;
+      if (prow && prow.isConnected) { var pr = prow.getBoundingClientRect(), ph = peek.offsetHeight; pty = pr.top - ph - 12 >= 70 ? pr.top - ph - 12 : pr.bottom + 12; }
+      kx = ease(kx, mx, .1); ky = ease(ky, pty, .14);
       dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
-      ring.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0)';
-      peek.style.transform = 'translate3d(' + (kx + 56) + 'px,' + (ky - 90) + 'px,0) rotate(' + tilt + 'deg)';
+      tag.style.transform = 'translate3d(' + (mx + 16) + 'px,' + (my + 18) + 'px,0)';
+      peek.style.transform = 'translate3d(' + (kx + 16) + 'px,' + ky + 'px,0) rotate(' + Math.max(-8, Math.min(8, (mx - kx) * .06)) + 'deg)';
       requestAnimationFrame(loop);
     })();
   })();
