@@ -8,7 +8,7 @@
 <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro', 'lock');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&family=Archivo:wdth,wght@125,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&family=Source+Code+Pro:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&family=Archivo:wdth,wght@125,800&display=swap">
 <style>
 /* ── Claude Design 'Cascades' (DIAF) — Grounded 테마 (2026-10-02 업데이트, grounded2026.com 구조).
    흰 바탕·검정·회색, Inter 500 일반 대소문자, Source Code Pro 이름표, 모서리 0, 1px 검정 선 + #727272 칸 나눔.
@@ -16,7 +16,7 @@
 :root{
   --white:#fff;--ink:#000;--n-200:#ccc;--n-300:#aaa;--n-500:#727272;--n-700:#444;
   --slate-50:#eef3f5;--slate-100:#dde8ec;--slate-200:#c4d7de;--slate:#9dbbc5;--lime:#beff8b;
-  --ground:var(--white);--ground-alt:var(--slate-50);--placeholder:var(--slate-100);--muted:var(--n-500);--grid-line:var(--n-500);
+  --ground:var(--white);--ground-alt:var(--slate-50);--placeholder:var(--slate-100);--muted:#666;--grid-line:var(--n-500);   /* 글자용 회색은 대비 때문에 #666 (그라운디드 실제 본문 회색과 같음) */
   --font-display:'Inter','Noto Sans KR',system-ui,sans-serif;
   --font-label:'Source Code Pro','Noto Sans KR',ui-monospace,monospace;
   --r-chip:30px;--ease:ease;--ease-reveal:cubic-bezier(.19,1,.22,1);--dur:.3s;
@@ -25,13 +25,14 @@
 @media (max-width:768px){:root{--g:16px;--sec:56px}}
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-font-smoothing:antialiased;scroll-padding-top:var(--hh)}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-display);font-weight:400;font-size:16px;line-height:1.6}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-display);font-weight:400;font-size:16px;line-height:1.7;word-break:keep-all;overflow-wrap:break-word}
 a{color:inherit;text-decoration:none;transition:opacity var(--dur) var(--ease)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 ::selection{background:var(--lime);color:var(--ink)}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 p,h1,h2,h3,figure,blockquote{margin:0}
-.display{font-family:var(--font-display);font-weight:500;letter-spacing:-.035em;line-height:1}
+.display{font-family:var(--font-display);font-weight:500;letter-spacing:-.035em;line-height:1;text-wrap:balance}
+p{text-wrap:pretty}
 .lbl{font-family:var(--font-label);font-weight:500;font-size:13px;letter-spacing:.04em;text-transform:uppercase;line-height:1.4}
 .muted{color:var(--muted)}
 .skip{position:fixed;left:var(--g);top:-60px;z-index:60;background:var(--ink);color:var(--white);padding:8px 14px}
@@ -77,15 +78,14 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 .sec{padding:var(--sec) var(--g);border-bottom:1px solid var(--ink)}
 .alt{background:var(--ground-alt)}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);gap:var(--g)}
-.intro-p{font-size:clamp(22px,2.1vw,30px);line-height:1.3;max-width:900px;letter-spacing:-.015em}
-.lead{font-size:clamp(18px,1.6vw,22px);line-height:1.5;max-width:40em}
-.rw{word-break:keep-all}
+.intro-p{font-size:clamp(22px,2.1vw,30px);line-height:1.42;max-width:900px;letter-spacing:-.01em}
+.lead{font-size:clamp(18px,1.6vw,22px);line-height:1.65;max-width:40em}
 
 /* ── 첫 화면: 장르 다섯 칸 (올리면 그 칸이 넓어진다) + 큰 제목 ── */
 .hero{padding:var(--g) var(--g) 0}
 .strip{display:flex;gap:8px;height:clamp(200px,32vw,460px);overflow:hidden}
 .tile{flex:var(--f) 1 0;min-width:0;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:10px;transition:flex-grow .7s var(--ease-reveal)}
-.tile .lbl{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .lbl{font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .chip{opacity:0;background:var(--lime);border-color:var(--lime);transition:opacity var(--dur) var(--ease)}
 .strip:hover .tile{flex-grow:.8}
 .strip .tile:hover,.strip .tile:focus-visible{flex-grow:3}
@@ -97,7 +97,7 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 .hero-side{display:flex;flex-direction:column;align-items:flex-end;gap:24px;text-align:right}
 
 /* ── 01 소개: 글자가 스크롤에 맞춰 진해진다 + 숫자 칸 ── */
-.stmt{font-size:clamp(28px,3.4vw,56px);line-height:1.12;text-wrap:pretty;word-break:keep-all}
+.stmt{font-size:clamp(28px,3.4vw,56px);line-height:1.3;letter-spacing:-.02em;text-wrap:pretty}
 .w{color:var(--n-200);transition:color var(--dur) var(--ease)}
 .w.on{color:var(--ink)}
 mark{background:var(--lime);color:inherit;padding:0 .1em}
@@ -109,7 +109,7 @@ mark{background:var(--lime);color:inherit;padding:0 .1em}
 .stat .lbl+.lbl{margin-top:10px}
 
 /* ── 02 장르: 슬래시 목록, 올리면 그 장르 설명 ── */
-.slash{font-size:clamp(24px,2.8vw,40px);line-height:1.15}
+.slash{font-size:clamp(24px,2.8vw,40px);line-height:1.15;letter-spacing:-.02em}
 .sl{color:var(--muted);transition:color var(--dur) var(--ease);text-align:left}
 .sl.on,.sl:hover{color:var(--ink)}
 .sl.on{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:2px}
@@ -129,15 +129,16 @@ mark{background:var(--lime);color:inherit;padding:0 .1em}
 .tl.in .pt{opacity:1;transform:none}
 .pt span{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:170px;text-align:center;display:flex;flex-direction:column;gap:2px}
 .pt em{font-style:normal}
-.pt b{font-family:var(--font-display);font-weight:500;font-size:24px;letter-spacing:-.035em;line-height:1}
+.pt b{font-family:var(--font-display);font-weight:500;font-size:24px;letter-spacing:-.02em;line-height:1}
 a.pt:hover{opacity:.5}
 .plist{margin-top:24px;border-top:1px solid var(--ink)}
 .prow{display:grid;grid-template-columns:96px minmax(0,1fr) minmax(0,.6fr) minmax(0,.4fr) 24px;gap:var(--g);align-items:center;padding:16px 0;border-bottom:1px solid var(--ink)}
-.thumb{aspect-ratio:4/3;overflow:hidden;position:relative}
+.thumb{aspect-ratio:4/3;overflow:hidden;position:relative;transform-origin:0 50%;transition:transform .45s var(--ease-reveal)}
 .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
-.ptitle{font-size:clamp(24px,2.8vw,40px);line-height:1.05;transition:transform .4s ease}
+.ptitle{font-size:clamp(24px,2.8vw,40px);line-height:1.1;letter-spacing:-.02em;transition:transform .4s ease}
 .parr{font-size:20px;transition:transform .4s ease}
-.prow:hover .ptitle{transform:translateX(10px)}
+.prow:hover .ptitle{transform:translateX(18px)}
+.prow:hover .thumb{transform:scale(1.32)}   /* 미리보기는 줄 안에서만 커진다 — 다른 내용을 가리지 않게 */
 .prow:hover .parr{transform:translateX(4px)}
 .prow:hover .chip{background:var(--lime)}
 .prow:hover .thumb img{transform:scale(1.08)}
@@ -149,7 +150,7 @@ a.pt:hover{opacity:.5}
 .col:first-child{border-left:0;padding-left:0}
 .col:hover{background:var(--ground-alt)}
 .col-top{display:flex;justify-content:space-between;gap:12px}
-.col h3{font-size:clamp(32px,3.4vw,56px)}
+.col h3{font-size:clamp(32px,3.4vw,56px);letter-spacing:-.03em}
 .col p{margin-top:auto;max-width:360px}
 
 /* ── 05 해마다의 기록 (후기 자리를 연도 소개로) ── */
@@ -158,7 +159,7 @@ a.pt:hover{opacity:.5}
 .ib{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--ink);transition:background-color var(--dur) var(--ease)}
 .ib.solid{background:var(--ink);color:var(--white)}
 .ib:hover{background:var(--lime);color:var(--ink)}
-.nq{font-size:clamp(24px,2.6vw,40px);line-height:1.25;max-width:22em;word-break:keep-all}
+.nq{font-size:clamp(24px,2.6vw,40px);line-height:1.38;letter-spacing:-.02em;max-width:22em}
 .note figcaption{display:flex;align-items:center;gap:16px;margin-top:40px;flex-wrap:wrap}
 .nthumb{width:56px;height:56px;flex:none}
 .note figcaption b{display:block;font-weight:500}
@@ -178,13 +179,13 @@ a.pt:hover{opacity:.5}
 .cta{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);background:var(--ink);color:var(--white)}
 .cta-l{padding:var(--sec) var(--g);display:flex;flex-direction:column;gap:24px}
 .cta .lbl{color:var(--n-300)}
-.cta-p{font-size:24px;line-height:1.35;max-width:440px}
+.cta-p{font-size:24px;line-height:1.5;letter-spacing:-.01em;max-width:440px}
 .cta-h{font-size:clamp(56px,8vw,140px);margin-top:auto}
 .cta-r{background:var(--n-700);min-height:420px;display:flex;align-items:flex-end;padding:16px}
 
 /* ── 연도 페이지 ── */
 .back{display:inline-block;margin-bottom:40px}
-.eh1{font-size:clamp(48px,9.4vw,180px);line-height:.92;margin-bottom:32px;word-break:keep-all}
+.eh1{font-size:clamp(48px,9.4vw,180px);line-height:.92;margin-bottom:32px}
 .kv-sec{padding:var(--g);border-bottom:1px solid var(--ink)}
 .kv{aspect-ratio:16/7;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:16px}
 .kv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -192,7 +193,7 @@ a.pt:hover{opacity:.5}
 .works{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px var(--g);margin-top:48px}
 .card .media{aspect-ratio:4/3;background:var(--placeholder);display:flex;align-items:flex-end;padding:10px}
 .card figcaption{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:baseline;border-top:1px solid var(--ink);margin-top:10px;padding-top:10px}
-.card figcaption b{font-size:24px;font-weight:500;letter-spacing:-.035em}
+.card figcaption b{font-size:24px;font-weight:500;letter-spacing:-.02em}
 .card figcaption .muted{grid-column:2;font-size:14px}
 .pager{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ink);margin-top:var(--sec)}
 .pager a{display:flex;flex-direction:column;gap:24px;padding:16px 0 0}
@@ -229,25 +230,19 @@ a.pt:hover{opacity:.5}
 
 /* ── 마우스: '액체 형광펜'. 정확한 자리는 작은 점으로 늘 보이고, 라임 물방울이 늦게 따라온다(빠르면 늘어나고 작은 방울이 꼬리처럼).
    누를 수 있는 곳에서는 물방울이 그 요소를 감싸는 형광펜이 된다 — 곱하기(multiply)라 아래 글자가 그대로 읽힌다.
-   검정 구역에서는 screen 으로 바꿔 흰 글자도 그대로. 안내 글은 커서 옆 꼬리표로만. 터치·움직임 줄이기에서는 쓰지 않는다. ── */
+   검정 구역에서는 difference 로 바꿔 흰 글자가 라임 칸 위에서 진하게 뒤집힌다. 안내 글은 커서 옆 꼬리표로만. 터치·움직임 줄이기에서는 쓰지 않는다. ── */
 .has-cur,.has-cur *{cursor:none}
 .has-cur a:hover{opacity:1!important}   /* 형광펜이 가리키는 표시를 맡으니 반투명 효과는 끈다 (글자가 흐려지지 않게) */
 .cliq{position:fixed;inset:0;pointer-events:none;z-index:90;mix-blend-mode:multiply;opacity:0;transition:opacity .3s ease}
-.cliq.dark{mix-blend-mode:screen}
+.cliq.dark{mix-blend-mode:difference}   /* 어두운 바탕: 라임 칸 위 흰 글자가 진한 색으로 뒤집혀 읽힌다 */
 .cliq.on,.cdot.on,.ctag.on{opacity:1}
+.cliq.on.own{opacity:0}
 .cblob,.cdrop{position:absolute;left:0;top:0;background:var(--lime);transform-origin:50% 50%;will-change:transform}
 .cblob{width:18px;height:18px;border-radius:9px}
 .cdrop{border-radius:50%}
 .cdot{position:fixed;left:0;top:0;z-index:91;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;opacity:0;will-change:transform}
 .ctag{position:fixed;left:0;top:0;z-index:91;pointer-events:none;opacity:0;background:var(--white);color:var(--ink);border:1px solid var(--ink);padding:3px 7px;font-family:var(--font-label);font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;transition:opacity .2s ease}
 .ctag:empty{display:none}
-.peek{position:fixed;left:0;top:0;z-index:85;width:240px;pointer-events:none;opacity:0;transition:opacity .25s ease}
-.peek.on{opacity:1}
-.peek-in{display:block;background:var(--white);border:1px solid var(--ink);padding:8px;transform:scale(.9);transform-origin:0 50%;transition:transform .45s var(--ease-reveal)}
-.peek.on .peek-in{transform:none}
-.peek-c{display:block;aspect-ratio:4/3;background:var(--c) center/cover}
-.peek-y{display:block;margin-top:8px}
-.peek-t{display:block;font-size:20px;margin-top:2px}
 
 /* 화면에 들어오면 떠오르는 블록 (anime 없을 때) */
 .rv{opacity:0;transform:translateY(24px);transition:transform .6s var(--ease-reveal),opacity .3s ease}
@@ -315,7 +310,6 @@ a.pt:hover{opacity:.5}
 </dialog>
 <main id="app"></main>
 <div class="cliq" id="cliq" aria-hidden="true"><i class="cdrop"></i><i class="cdrop"></i><i class="cblob"></i></div><i class="cdot" id="cdot" aria-hidden="true"></i><span class="ctag" id="ctag" aria-hidden="true"></span>
-<div class="peek" id="peek" aria-hidden="true"><span class="peek-in"><span class="peek-c"></span><span class="lbl muted peek-y"></span><b class="display peek-t"></b></span></div>
 <footer class="ftr" id="ftr">
   <div class="fcols">
     <div class="fcol"><p class="lbl">Menu</p><nav aria-label="푸터 메뉴"><a href="#/about">About /</a><a href="#/mediums">Mediums /</a><a href="#/editions">Editions /</a><a href="#/format">Format /</a><a href="#/index">Index</a></nav></div>
@@ -407,7 +401,7 @@ a.pt:hover{opacity:.5}
     var years = EDITIONS[EDITIONS.length - 1].year + '–' + L.year, G = Object.keys(genres);
     app.innerHTML =
       '<section class="hero" id="top"><div class="strip">' + MEDIUMS.map(function(m, i){
-          return '<a class="tile" href="#/mediums" data-m="' + i + '" style="--f:' + [2, 1, 1, 1.4, 1][i] + ';background:' + TILE[i] + '"><span class="lbl muted">( ' + esc(m.en.toLowerCase()) + ' )</span><span class="lbl chip">' + yearsOf(m).length + ' yrs</span></a>';
+          return '<a class="tile" href="#/mediums" data-m="' + i + '" style="--f:' + [2, 1, 1, 1.4, 1][i] + ';background:' + TILE[i] + '"><span class="lbl">( ' + esc(m.en.toLowerCase()) + ' )</span><span class="lbl chip">' + yearsOf(m).length + ' yrs</span></a>';
         }).join('') + '</div>' +
         '<div class="hero-foot"><h1 class="display hero-h" aria-label="Digital Arts Festival"><span class="hl" aria-hidden="true"><span>Digital Arts</span></span><span class="hl" aria-hidden="true"><span>Festival</span></span></h1>' +
         '<div class="hero-side">' + lbl('Seoul Institute of the Arts<br>Digital Arts', '') + lbl('( scroll down )') + '</div></div></section>' +
@@ -424,7 +418,7 @@ a.pt:hover{opacity:.5}
         '<a class="btn outline sm" href="#/editions">See all editions <i aria-hidden="true">→</i></a></div></div></section>' +
       '<section class="sec" id="editions"><div class="two">' + lbl('( editions )') + '<p class="display intro-p rw" data-rv>해마다 하나의 주제를 정하고, 그해의 작업을 한 전시장에 모읍니다. 지금까지의 DIAF입니다.</p></div>' + timeline() +
         '<div class="plist">' + EDITIONS.map(function(e, i){
-          return '<a class="prow rv" data-rv href="#/' + e.year + '" data-y="' + e.year + '" data-t="' + esc(e.theme) + '" data-c="' + PAL[i % 3] + '"' + (e.kv ? ' data-kv="' + esc(e.kv) + '"' : '') + '><span class="thumb" style="background:' + PAL[i % 3] + '">' + kv(e) + '</span><span class="display ptitle">' + esc(e.theme) + '</span><span class="lbl muted ploc">' + (e.venue ? esc(e.venue) : 'Venue —') + '</span><span class="lbl"><span class="chip">' + e.year + '</span></span><span class="parr" aria-hidden="true">→</span></a>';
+          return '<a class="prow rv" data-rv href="#/' + e.year + '"><span class="thumb" style="background:' + PAL[i % 3] + '">' + kv(e) + '</span><span class="display ptitle">' + esc(e.theme) + '</span><span class="lbl muted ploc">' + (e.venue ? esc(e.venue) : 'Venue —') + '</span><span class="lbl"><span class="chip">' + e.year + '</span></span><span class="parr" aria-hidden="true">→</span></a>';
         }).join('') + '</div>' +
         '<div class="more"><a class="btn" href="#/index">Explore the index <i aria-hidden="true">→</i></a></div></section>' +
       '<section class="sec" id="format"><div class="two">' + lbl('( format )') + '<p class="display intro-p rw" data-rv>전시와 공연, 그리고 기록. 세 가지 방식으로 페스티벌을 엽니다.</p></div>' +
@@ -558,21 +552,21 @@ a.pt:hover{opacity:.5}
   if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !RM.matches) (function(){
     var liq = document.getElementById('cliq'), blob = liq.querySelector('.cblob'), drops = [].slice.call(liq.querySelectorAll('.cdrop'));
     var dot = document.getElementById('cdot'), tag = document.getElementById('ctag');
-    var peek = document.getElementById('peek'), pc = peek.querySelector('.peek-c'), py = peek.querySelector('.peek-y'), pt = peek.querySelector('.peek-t');
-    var mx = -200, my = -200, kx = mx, ky = my, seen = false, snap = null, prow = null;
+    var mx = -200, my = -200, seen = false, snap = null, own = false;
     var b = { x: mx, y: my, w: 18, h: 18, r: 9 }, D = [{ x: mx, y: my, s: 11 }, { x: mx, y: my, s: 7 }];
     root.classList.add('has-cur');
-    function show(on){ [liq, dot, tag].forEach(function(el){ el.classList.toggle('on', on); }); if (!on) peek.classList.remove('on'); }
-    window.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; if (!seen) { seen = true; b.x = kx = mx; b.y = ky = my; D.forEach(function(d){ d.x = mx; d.y = my; }); show(true); } }, { passive: true });
+    function show(on){ [liq, dot, tag].forEach(function(el){ el.classList.toggle('on', on); }); }
+    window.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; if (!seen) { seen = true; b.x = mx; b.y = my; D.forEach(function(d){ d.x = mx; d.y = my; }); show(true); } }, { passive: true });
     document.addEventListener('mouseleave', function(){ seen = false; show(false); });
     document.addEventListener('mouseover', function(e){
-      var t = e.target.closest('a,button'), row = e.target.closest('.prow');
-      /* 낮은 요소(글자 링크·버튼·줄·칩)는 감싸고, 큰 칸(첫 화면 장르 칸)은 감싸지 않고 꼬리표만 */
-      snap = t && t.getBoundingClientRect().height <= 140 ? t : null;
-      liq.classList.toggle('dark', bgDark(e.target));
-      tag.textContent = row ? '' : t && t.matches('.tile') ? 'Explore · ' + MEDIUMS[+t.getAttribute('data-m')].en : t && t.matches('.pt,.chip') ? 'Open ' + t.textContent.replace(/\D/g, '').slice(0, 4) : '';
-      if (row) { pc.style.setProperty('--c', row.getAttribute('data-c')); pc.style.backgroundImage = row.getAttribute('data-kv') ? 'url("' + row.getAttribute('data-kv') + '")' : ''; py.textContent = 'DIAF ' + row.getAttribute('data-y'); pt.textContent = row.getAttribute('data-t'); }
-      peek.classList.toggle('on', !!row); prow = row;
+      var t = e.target.closest('a,button');
+      /* 버튼은 올리면 스스로 라임이 되니 형광펜을 씌우지 않고 점만 (검정 버튼이 하얗게 날아가던 문제).
+         낮은 요소(글자 링크·줄·칩)는 감싸고, 큰 칸(첫 화면 장르 칸)은 감싸지 않고 꼬리표만 */
+      own = !!t && t.matches('.btn,.ib');
+      snap = t && !own && t.getBoundingClientRect().height <= 140 ? t : null;
+      liq.classList.toggle('dark', !own && bgDark(e.target));
+      liq.classList.toggle('own', own);
+      tag.textContent = t && t.matches('.tile') ? 'Explore · ' + MEDIUMS[+t.getAttribute('data-m')].en : t && t.matches('.pt,.chip') ? 'Open ' + t.textContent.replace(/\D/g, '').slice(0, 4) : '';
     });
     /* 가리킨 지점의 바탕이 어두우면 screen, 밝으면 multiply (라임 버튼 위에서 글자가 사라지지 않게) */
     function bgDark(el){
@@ -599,12 +593,8 @@ a.pt:hover{opacity:.5}
         drops[i].style.width = drops[i].style.height = d.s + 'px';
         drops[i].style.transform = 'translate3d(' + (d.x - d.s / 2) + 'px,' + (d.y - d.s / 2) + 'px,0) scale(' + (free ? 1 : 0) + ')';
       });
-      var pty = my - 90;
-      if (prow && prow.isConnected) { var pr = prow.getBoundingClientRect(), ph = peek.offsetHeight; pty = pr.top - ph - 12 >= 70 ? pr.top - ph - 12 : pr.bottom + 12; }
-      kx = ease(kx, mx, .1); ky = ease(ky, pty, .14);
       dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
       tag.style.transform = 'translate3d(' + (mx + 16) + 'px,' + (my + 18) + 'px,0)';
-      peek.style.transform = 'translate3d(' + (kx + 16) + 'px,' + ky + 'px,0) rotate(' + Math.max(-8, Math.min(8, (mx - kx) * .06)) + 'deg)';
       requestAnimationFrame(loop);
     })();
   })();
