@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DIAF · Digital Arts Festival</title>
 <meta name="description" content="서울예술대학교 디지털아트전공 디지털아트 페스티벌(DIAF)의 연도별 기록.">
-<script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro', 'lock');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&family=Source+Code+Pro:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&family=Archivo:wdth,wght@125,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&family=Source+Code+Pro:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>
 /* ── Claude Design 'Cascades' (DIAF) — Grounded 테마 (2026-10-02 업데이트, grounded2026.com 구조).
    흰 바탕·검정·회색, Inter 500 일반 대소문자, Source Code Pro 이름표, 모서리 0, 1px 검정 선 + #727272 칸 나눔.
@@ -240,14 +239,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 .big{font-size:clamp(64px,24vw,420px);line-height:.85;white-space:nowrap;margin-top:24px}
 .fbot{display:flex;justify-content:space-between;gap:16px;margin-top:24px;color:var(--n-300)}
 
-/* ── 입장: 'DIGITAL ARTS FESTIVAL' 글자 안에 액체가 차오른다 (캔버스, anime.js 가 있을 때만) ── */
-.loader{display:none}
-.intro .loader{position:fixed;inset:0;z-index:70;display:block;background:var(--ground)}
-.loader canvas{position:absolute;inset:0;width:100%;height:100%}
-.ld-row{position:absolute;left:var(--g);right:var(--g);bottom:calc(var(--g) + 4px);display:flex;justify-content:space-between}
-.ld-count{font-variant-numeric:tabular-nums}
-.ld-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--lime);transform-origin:left;transform:scaleX(0)}
-.lock{overflow:hidden}
 
 /* ── 마우스: '액체 형광펜'. 정확한 자리는 작은 점으로 늘 보이고, 라임 물방울이 늦게 따라온다(빠르면 늘어나고 작은 방울이 꼬리처럼).
    누를 수 있는 곳에서는 물방울이 그 요소를 감싸는 형광펜이 된다 — 곱하기(multiply)라 아래 글자가 그대로 읽힌다.
@@ -337,7 +328,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 </style>
 </head>
 <body>
-<div class="loader" id="loader" aria-hidden="true"><canvas id="ldcv"></canvas><div class="ld-row lbl"><span>Digital Arts Festival — Archive</span><span class="ld-count" id="ldc">000</span></div><i class="ld-bar" id="ldbar"></i></div>
 <a class="skip" href="#app">본문으로 건너뛰기</a>
 <header class="hdr" id="hdr">
   <a class="display mark" href="#/" aria-label="DIAF 처음으로">DIAF</a>
@@ -407,7 +397,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   var PAL = ['var(--slate)', 'var(--slate-200)', 'var(--slate-100)'];   /* 해마다 칠하는 색: 연파랑 명도 단계 */
   var TILE = ['var(--slate-100)', 'var(--slate-50)', 'var(--slate-200)', 'var(--slate)', 'var(--slate-100)'];
   var RM = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var A = window.anime && !RM.matches ? window.anime : null, root = document.documentElement, introOn = false;   /* A 없으면(불러오기 실패·움직임 줄이기) CSS 만으로 동작 */
+  var A = window.anime && !RM.matches ? window.anime : null, root = document.documentElement;   /* A 없으면(불러오기 실패·움직임 줄이기) CSS 만으로 동작 */
   if (A) root.classList.add('anim');
   var app = document.getElementById('app'), menu = document.getElementById('menu'), clock = document.getElementById('clock');
   var med = 0, note = 0;
@@ -570,7 +560,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
       var tlEl = app.querySelector('.tl');
       if (tlEl) { tlEl._draw = A.svg.createDrawable(tlEl.querySelector('path')); A.utils.set(tlEl._draw, { draw: '0 0' }); A.utils.set(tlEl.querySelectorAll('.pt'), { opacity: 0, scale: .4 }); }
       app.querySelectorAll('.num').forEach(function(n){ n.textContent = '0'; });
-      var ky = document.getElementById('kvy'); if (ky) A.animate(ky, { innerHTML: A.scrambleText({ chars: 'numbers' }), duration: 1000, delay: introOn ? 1900 : 150 });
+      var ky = document.getElementById('kvy'); if (ky) A.animate(ky, { innerHTML: A.scrambleText({ chars: 'numbers' }), duration: 1000, delay: 150 });
     }
     document.querySelectorAll('[data-rv]:not(.in)').forEach(function(el){ if (io) io.observe(el); else reveal(el); });
     stmt = app.querySelector('.stmt'); ws = stmt ? stmt.querySelectorAll('.w') : [];
@@ -689,98 +679,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   window.addEventListener('resize', onScroll);
   window.addEventListener('hashchange', route);
 
-  /* ── 입장: 'DIGITAL ARTS FESTIVAL' 글자 안에 액체가 차오른다.
-     수면은 스프링 물결 시뮬레이션(붓는 자리 출렁임 + 기포), 차오르는 양·순서는 anime.js 타임라인. 첫 로드에만.
-     다 차면 막이 걷히고, 장르 다섯 칸이 아래에서 올라오며 제목이 줄마다 올라온다. ── */
-  var loader = document.getElementById('loader');
-  function liquidIntro(){
-    var hdr = document.getElementById('hdr'), heroEl = app.querySelector('.hero');
-    var tiles = heroEl ? [].slice.call(heroEl.querySelectorAll('.tile')) : [], lines = heroEl ? [].slice.call(heroEl.querySelectorAll('.hl>span')) : [], side = heroEl && heroEl.querySelector('.hero-side');
-    introOn = true; root.classList.add('intro', 'lock');
-    A.utils.set(hdr, { y: '-100%' });
-    if (heroEl) { A.utils.set(tiles, { y: '110%' }); A.utils.set(lines, { y: '105%' }); A.utils.set(side, { opacity: 0 }); }
-    var fontReady = document.fonts && document.fonts.load ? document.fonts.load('800 100px Archivo') : Promise.resolve();
-    Promise.race([fontReady, new Promise(function(r){ setTimeout(r, 2500); })]).then(start, start);
-
-    function start(){
-      var cv = document.getElementById('ldcv'), ctx = cv.getContext('2d'), W = innerWidth, H = innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
-      var lime = getComputedStyle(root).getPropertyValue('--lime').trim();
-      var ldc = document.getElementById('ldc'), bar = document.getElementById('ldbar');
-      function canvas(){ var c = document.createElement('canvas'); c.width = W * dpr; c.height = H * dpr; var x = c.getContext('2d'); x.scale(dpr, dpr); return x; }
-      function setFont(c, fs){ c.font = '800 ' + fs + 'px Archivo, "Noto Sans KR", sans-serif'; if ('fontStretch' in c) c.fontStretch = 'expanded'; }
-      cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
-
-      /* 줄 배치: 'DIGITAL ARTS FESTIVAL' 한 줄을 화면 가운데에 (좁은 화면은 DIGITAL ARTS / FESTIVAL 두 줄) */
-      var maxW = W * (W < 768 ? 0.92 : 0.94), rows = [];
-      function wid(t, fs){ setFont(ctx, fs); return ctx.measureText(t).width; }
-      function fit(t, cap){ return Math.min(cap, 100 * maxW / wid(t, 100)); }
-      var mainT = ['DIGITAL ARTS FESTIVAL'], mfs = fit(mainT[0], H * 0.24);
-      if (mfs < (W < 768 ? 44 : 60)) { mainT = ['DIGITAL ARTS', 'FESTIVAL']; mfs = fit('DIGITAL ARTS', H * 0.18); }
-      mainT.forEach(function(t){ rows.push({ t: t, fs: mfs, dur: 900 }); });
-      rows.forEach(function(r){ setFont(ctx, r.fs); var m = ctx.measureText(r.t); r.w = m.width; r.cap = m.actualBoundingBoxAscent || r.fs * .72; r.x0 = (W - r.w) / 2; });
-      var mh = rows.reduce(function(a, r, i){ return a + r.cap + (i ? r.cap * .28 : 0); }, 0), y = (H - mh) / 2;
-      rows.forEach(function(r, i){ if (i) y += r.cap * .28; y += r.cap; r.base = y; });
-      rows.forEach(function(r, i){
-        var n = Math.max(12, Math.round(r.w / 6));
-        r.h = new Float32Array(n + 1); r.v = new Float32Array(n + 1); r.ld = new Float32Array(n + 1); r.rd = new Float32Array(n + 1);
-        r.lv = { v: 0 }; r.pour = .2 + (i * .29) % .6; r.bub = []; r.k = i;
-      });
-      /* 글자 모양(가리개)과 윤곽선은 한 번만 그려 둔다 */
-      var mk = canvas(), ol = canvas();
-      rows.forEach(function(r){ setFont(mk, r.fs); setFont(ol, r.fs); mk.fillText(r.t, r.x0, r.base); ol.lineWidth = 1; ol.strokeStyle = '#000'; ol.strokeText(r.t, r.x0, r.base); });
-
-      var oa = { v: 0 }, alive = true, last = performance.now();
-      function sim(r){
-        var n = r.h.length - 1, i, L = r.lv.v;
-        if (L > 0 && L < 1) {   /* 붓는 자리 출렁임 + 기포 */
-          r.v[Math.round(r.pour * n)] += (Math.random() - .35) * 1.6;
-          if (Math.random() < .3) r.bub.push({ x: r.x0 + Math.random() * r.w, y: r.base, s: 1 + Math.random() * 2.2, ph: Math.random() * 6 });
-        }
-        for (i = 0; i <= n; i++) { r.v[i] += -.02 * r.h[i] - .03 * r.v[i]; r.h[i] = Math.max(-r.cap * .3, Math.min(r.cap * .3, r.h[i] + r.v[i])); }
-        for (var pass = 0; pass < 2; pass++) {
-          for (i = 0; i <= n; i++) { r.ld[i] = i > 0 ? .2 * (r.h[i] - r.h[i - 1]) : 0; r.rd[i] = i < n ? .2 * (r.h[i] - r.h[i + 1]) : 0; if (i > 0) r.v[i - 1] += r.ld[i]; if (i < n) r.v[i + 1] += r.rd[i]; }
-          for (i = 0; i <= n; i++) { if (i > 0) r.h[i - 1] += r.ld[i]; if (i < n) r.h[i + 1] += r.rd[i]; }
-        }
-      }
-      function frame(now){
-        if (!alive) return;
-        var steps = Math.max(1, Math.min(3, Math.round((now - last) / 16.7))); last = now;
-        ctx.clearRect(0, 0, W, H);
-        var sum = 0;
-        rows.forEach(function(r){
-          for (var k = 0; k < steps; k++) sim(r);
-          var L = r.lv.v, n = r.h.length - 1, amp = 5 * (1 - L) * Math.min(1, L * 6) + .6, sy = r.base + 2 - L * (r.cap + 8);
-          sum += L;
-          if (L <= 0) return;
-          ctx.fillStyle = lime; ctx.beginPath(); ctx.moveTo(r.x0 - 4, r.base + 6);
-          for (var i = 0; i <= n; i++) { var x = r.x0 - 4 + i / n * (r.w + 8); ctx.lineTo(x, sy + r.h[i] + amp * (Math.sin(x * .018 + now * .0032 + r.k) * .6 + Math.sin(x * .047 - now * .0021) * .4)); }
-          ctx.lineTo(r.x0 + r.w + 4, r.base + 6); ctx.closePath(); ctx.fill();
-          ctx.fillStyle = 'rgba(255,255,255,.55)';
-          r.bub = r.bub.filter(function(b){ b.y -= .7 + b.s * .25; b.x += Math.sin(now * .006 + b.ph) * .3; if (b.y < sy + 3) return false; ctx.beginPath(); ctx.arc(b.x, b.y, b.s, 0, 6.283); ctx.fill(); return true; });
-        });
-        ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(mk.canvas, 0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = oa.v; ctx.drawImage(ol.canvas, 0, 0, W, H); ctx.globalAlpha = 1;
-        var avg = sum / rows.length; ldc.textContent = ('00' + Math.round(avg * 100)).slice(-3); bar.style.transform = 'scaleX(' + avg + ')';
-        requestAnimationFrame(frame);
-      }
-      requestAnimationFrame(frame);
-
-      var fillEnd = 0; rows.forEach(function(r, i){ r.at = 150 + i * 170; fillEnd = Math.max(fillEnd, r.at + r.dur); });
-      var out = fillEnd + 150;
-      var tl = A.createTimeline({ defaults: { ease: 'out(4)' }, onComplete: done });
-      tl.add(oa, { v: 1, duration: 350, ease: 'out(2)' }, 0);
-      rows.forEach(function(r){ tl.add(r.lv, { v: 1, duration: r.dur, ease: 'inOut(2)' }, r.at); });
-      tl.add(loader, { y: ['0%', '-100%'], duration: 650, ease: 'inOut(3)' }, out);
-      if (heroEl) {
-        tl.add(tiles, { y: ['110%', '0%'], duration: 900, delay: A.stagger(70) }, out + 150)
-          .add(lines, { y: ['105%', '0%'], duration: 900, delay: A.stagger(90) }, out + 300)
-          .add(side, { opacity: [0, 1], duration: 600 }, out + 650);
-      }
-      tl.add(hdr, { y: ['-100%', '0%'], duration: 700 }, out + 300);
-      setTimeout(function(){ root.classList.remove('lock'); }, out + 400);
-      function done(){ alive = false; introOn = false; root.classList.remove('intro', 'lock'); loader.remove(); }
-    }
-  }
   /* 새로고침·링크로 들어오면 늘 첫 구역부터: 브라우저 스크롤 복원을 끄고, 구역 주소(#/about 등)는 #/ 로 바꾼다.
      연도 주소(#/2025)는 그 연도 페이지의 맨 위에서 연다. 메뉴로 구역 이동하는 건 그대로. */
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -788,7 +686,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   if (h0 && !EDITIONS.some(function(x){ return String(x.year) === h0; })) history.replaceState(null, '', location.pathname + location.search + '#/');
   route();
   window.scrollTo(0, 0);
-  if (A) liquidIntro(); else { root.classList.remove('intro', 'lock'); loader.remove(); }
 })();
 </script>
 </body>
