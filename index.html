@@ -222,7 +222,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 .pager .display{font-size:clamp(48px,7vw,120px)}
 .pager a:hover{opacity:.5}
 
-/* ── 푸터: 검정, 모노 이름표 네 칸 + 자석 스티커 + 큰 워드마크 ── */
+/* ── 푸터: 검정, 모노 이름표 네 칸 + 큰 워드마크 ── */
 .ftr{background:var(--ink);color:var(--white);padding:48px var(--g) var(--g)}
 .fcols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--white);padding-top:16px}
 .fcol{position:relative;padding:0 20px 20px 0}
@@ -230,14 +230,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 .fcol+.fcol::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--grid-line)}
 .fcol .lbl:first-child{color:var(--n-300);margin-bottom:16px}
 .fcol nav{display:grid;gap:4.8px}
-.pile{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px 18px;padding:48px 0 16px}
-.pile span{padding:.12em .55em;border-radius:var(--r-chip);font-family:var(--font-display);font-weight:500;letter-spacing:-.02em;font-size:clamp(20px,3vw,44px);line-height:1.1;white-space:nowrap;transform:rotate(var(--r));color:var(--ink)}
-.pile .lime{background:var(--lime)}.pile .slate{background:var(--slate)}.pile .white{background:var(--white)}
-.pile .dark{background:var(--n-700);color:var(--lime)}
-.pile:not(.in) span{visibility:hidden}
-.pile.in span{animation:fall .9s cubic-bezier(.55,0,1,.45) both;animation-delay:var(--d)}
-@keyframes fall{from{transform:translateY(-260px) rotate(0deg)}to{transform:rotate(var(--r))}}
-.big{font-size:clamp(64px,24vw,420px);line-height:.85;white-space:nowrap;margin-top:24px}
+.big{font-size:clamp(64px,24vw,420px);line-height:.85;white-space:nowrap;margin-top:40px}
 .fbot{display:flex;justify-content:space-between;gap:16px;margin-top:24px;color:var(--n-300)}
 
 
@@ -285,7 +278,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 .rv{opacity:0;transform:translateY(24px);transition:transform .6s var(--ease-reveal),opacity .3s ease}
 .rv.in{opacity:1;transform:none}
 .anim .pt{transition:none}
-.anim .pile span{visibility:visible!important;animation:none!important}
 
 @media (max-width:1024px){
   .prow{grid-template-columns:72px minmax(0,1fr) minmax(0,.5fr) 24px}
@@ -338,7 +330,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   .w{color:var(--ink)}
   .rv{opacity:1;transform:none;transition:none}
   html:not(.anim) .tl path{stroke-dashoffset:0;transition:none}.pt{opacity:1;transform:none;transition:none}
-  .pile span{visibility:visible!important;animation:none!important}
 }
 </style>
 </head>
@@ -376,7 +367,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
     <div class="fcol"><p class="lbl">Major</p><p><a class="ul" href="https://digitalarts-homepage.vercel.app" target="_blank" rel="noopener">디지털아트전공 홈페이지 ↗</a></p></div>
     <div class="fcol"><p class="lbl">Follow us</p><p><a class="ul" href="https://www.instagram.com/digitalartsfestival_sia/" target="_blank" rel="noopener">(IG) @digitalartsfestival_sia</a></p></div>
   </div>
-  <div class="pile" id="pile" data-rv aria-hidden="true"></div>
   <div class="display big" aria-hidden="true">DIAF</div>
   <div class="fbot lbl"><span>© Seoul Institute of the Arts, Digital Arts</span><a href="#top" data-top>( back to top ↑ )</a></div>
 </footer>
@@ -557,17 +547,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
       A.animate(el.querySelectorAll('a.pt b'), { innerHTML: A.scrambleText({ chars: 'numbers' }), duration: 900, delay: A.stagger(130, { start: 500 }) });
     }
     el.querySelectorAll('.num').forEach(function(n){ var o = { v: 0 }; A.animate(o, { v: +n.getAttribute('data-n'), duration: 1400, ease: 'out(4)', onUpdate: function(){ n.textContent = Math.round(o.v); } }); });
-    if (el.id === 'pile') {   /* 스티커: 화면 위에서 떨어지다가 제자리 근처에서 자석에 끌리듯 빨려 들어가 '착' 붙는다 */
-      var chips = [].slice.call(el.children);
-      chips.forEach(function(t, i){ t._r = parseFloat(t.style.getPropertyValue('--r')); A.utils.set(t, { y: -(t.getBoundingClientRect().bottom + 40), x: ((i * 71) % 240) - 120, rotate: ((i * 37) % 120) - 60, opacity: 1 }); });
-      A.animate(chips, {
-        y: [{ to: -44, ease: 'in(2)', duration: 560 }, { to: 0, ease: 'in(5)', duration: 150 }],
-        x: [{ to: function(t, i){ return (((i * 71) % 240) - 120) * .25; }, ease: 'out(2)', duration: 560 }, { to: 0, ease: 'in(5)', duration: 150 }],
-        rotate: [{ to: function(t){ return t._r * 3; }, ease: 'out(2)', duration: 560 }, { to: function(t){ return t._r; }, ease: 'in(5)', duration: 150 }],
-        scale: [{ to: 1, duration: 710 }, { to: 1.08, ease: 'out(2)', duration: 60 }, { to: 1, ease: 'out(4)', duration: 280 }],
-        delay: A.stagger(80, { from: 'random' })
-      });
-    }
   }
 
   function init(){
@@ -595,13 +574,6 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
     document.querySelectorAll('.slnav a').forEach(function(a){ var on = a.getAttribute('href') === '#/' + h; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
     init();
   }
-
-  /* 푸터 스티커: 테마·연도를 벽에 붙인 듯 줄지어 둔다 (각도는 고정값이라 매번 같다) */
-  var stickers = ['DIAF'].concat(EDITIONS.map(function(e){ return e.theme; }), EDITIONS.map(function(e){ return String(e.year); }), ['Seoul', '✦', 'Digital Arts', 'Festival', '✦']);
-  document.getElementById('pile').innerHTML = stickers.map(function(t, i){
-    return '<span class="' + ['lime', 'slate', 'dark', 'white'][i % 4] + '" style="--r:' + ((i * 53) % 17 - 8) + 'deg;--d:' + i * 70 + 'ms">' + esc(t) + '</span>';
-  }).join('');
-  if (A) A.utils.set([].slice.call(document.getElementById('pile').children), { opacity: 0 });   /* 스티커는 떨어지기 전까지 숨김 */
 
   /* 서울 시각 */
   var fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
