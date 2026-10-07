@@ -24,7 +24,7 @@
 }
 @media (max-width:768px){:root{--g:16px;--sec:56px}}
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-font-smoothing:antialiased;scroll-padding-top:var(--hh)}
+html{-webkit-font-smoothing:antialiased;scroll-padding-top:var(--hh);scrollbar-gutter:stable}   /* 입장 뒤 스크롤 잠금이 풀릴 때 스크롤바가 생겨도 폭이 바뀌지 않게 (다시 배치하며 끊겼다) */
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-display);font-weight:400;font-size:16px;line-height:1.7;word-break:keep-all;overflow-wrap:break-word}
 a{color:inherit;text-decoration:none;transition:opacity var(--dur) var(--ease)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
@@ -117,9 +117,19 @@ mark{background:var(--lime);color:inherit;padding:0 .1em}
 .sl.on,.sl:hover{color:var(--ink)}
 .sl.on{text-decoration:underline;text-underline-offset:.12em;text-decoration-thickness:2px}
 .sep{color:var(--n-300)}
+.sli{white-space:nowrap}   /* 이름과 뒤따르는 / 를 한 덩어리로 — 줄이 바뀌어도 / 가 다음 줄 맨 앞에 오지 않는다 */
 .sl-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px var(--g);margin:20px 0;max-width:760px}
 .sl-detail p{grid-column:1/-1}
 .yrs{display:flex;gap:8px;flex-wrap:wrap}
+/* 가운데 블록 (Mediums·Editions, 사용자 10-07): 이름표는 왼쪽 그대로, 글은 화면 정중앙 — 줄마다 좌우 여백이 같다. 이름표와 겹치지 않게 양쪽에 이름표 자리를 남긴다 */
+@media (min-width:769px){
+  .two.mid>:first-child{grid-column:1;grid-row:1}
+  .two.mid>:last-child{grid-column:1/-1;grid-row:1;justify-self:center;width:min(940px,100% - 320px);text-align:center}
+  .mid .slash{text-wrap:balance}
+  .mid .sl-detail{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;max-width:none}
+  .mid .sl-detail p{flex-basis:100%;margin:0}
+  .mid .yrs{flex-basis:100%;justify-content:center}
+}
 
 /* ── 03 역대 페스티벌: 연도를 잇는 선 + 프로젝트 목록 ── */
 .tl-wrap{overflow-x:auto;margin:24px calc(var(--g) * -1) 8px;padding:0 var(--g);scrollbar-width:none}
@@ -259,7 +269,8 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 .intro .appear{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--ground);color:var(--ink)}
 .ap-grid{display:flex;flex-direction:column;align-items:center;font-family:var(--font-display);font-weight:500;letter-spacing:-.035em;line-height:1;will-change:transform}
 .ap-row{display:flex;white-space:nowrap;will-change:transform}
-.ap-w{display:inline-block}
+.ap-w{display:inline-block;position:relative}
+.ap-cv{position:absolute;inset:-.12em -.08em;background:var(--ground);transform:scaleX(0);will-change:transform}   /* 단어 지우개: 흰 덮개가 줄 방향으로 펼쳐진다 (clip-path 는 매 프레임 다시 칠해 끊겼다) */
 .ap-c{position:relative;z-index:0}
 .ap-hl{position:absolute;left:calc(-.12em - 5px);right:calc(-.12em - 5px);top:calc(.02em - 5px);bottom:calc(-.06em - 5px);   /* 글자 둘레 여백 +5px */background:var(--lime);z-index:-1;transform:scaleX(0);transform-origin:0 50%}
 .ap-lbl{position:absolute;left:var(--g);right:var(--g);display:flex;justify-content:space-between;background:var(--ground);padding:6px 0}
@@ -465,11 +476,11 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
           '<div class="stat">' + lbl('Works shown') + '<b class="display">' + (approx ? '<small>약</small>' : '') + '<span class="num" data-n="' + sum + '">' + sum + '</span></b>' + lbl(years) + '</div>' +
           '<div class="stat">' + lbl('Mediums') + '<b class="display"><span class="num" data-n="' + G.length + '">' + G.length + '</span></b>' + lbl(esc(G.join(' / '))) + '</div>' +
         '</div></section>' +
-      '<section class="sec" id="mediums"><div class="two">' + lbl('( mediums )') + '<div>' +
-        '<h3 class="display slash">' + MEDIUMS.map(function(m, i){ return (i ? '<span class="sep" aria-hidden="true"> / </span>' : '') + '<button class="sl' + (i === med ? ' on' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + (i === med) + '">' + esc(m.en) + '</button>'; }).join('') + '</h3>' +
+      '<section class="sec" id="mediums"><div class="two mid">' + lbl('( mediums )') + '<div>' +
+        '<h3 class="display slash">' + MEDIUMS.map(function(m, i){ return '<span class="sli"><button class="sl' + (i === med ? ' on' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + (i === med) + '">' + esc(m.en) + '</button>' + (i < MEDIUMS.length - 1 ? '<span class="sep" aria-hidden="true"> /</span>' : '') + '</span>'; }).join(' ') + '</h3>' +
         '<div class="sl-detail" id="sld" aria-live="polite">' + medDetail(med) + '</div>' +
         '<a class="btn outline sm" href="#/editions">See all editions <i aria-hidden="true">→</i></a></div></div></section>' +
-      '<section class="sec" id="editions"><div class="two">' + lbl('( editions )') + '<p class="display intro-p rw" data-rv>해마다 하나의 주제를 정하고, 그해의 작업을 한 전시장에 모읍니다. 지금까지의 DIAF입니다.</p></div>' + timeline() +
+      '<section class="sec" id="editions"><div class="two mid">' + lbl('( editions )') + '<p class="display intro-p rw" data-rv>해마다 하나의 주제를 정하고, 그해의 작업을 한 전시장에 모읍니다. 지금까지의 DIAF입니다.</p></div>' + timeline() +
         '<div class="plist">' + EDITIONS.map(function(e, i){
           return '<a class="prow rv" data-rv href="#/' + e.year + '"><span class="thumb" style="background:' + PAL[i % 3] + '">' + kv(e) + '</span><span class="display ptitle">' + esc(e.theme) + '</span><span class="lbl muted ploc">' + (e.venue ? esc(e.venue) : 'Venue —') + '</span><span class="lbl"><span class="chip">' + e.year + '</span></span><span class="parr" aria-hidden="true">→</span></a>';
         }).join('') + '</div>' +
@@ -675,7 +686,9 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   route();
   window.scrollTo(0, 0);
 
-  /* ── 입장 (Originkit Appear Text 이식) ── */
+  /* ── 입장 (Originkit Appear Text 이식) ──
+     글꼴이 다 온 뒤 격자를 만들고, 화면을 두 번 그린 다음 재생한다 (먼저 재생하면 첫 장면이 건너뛰고, 도중에 글꼴이 바뀌면 전체를 다시 배치하며 끊겼다).
+     지우기·막 걷기·페이지 올라오기는 모두 transform 만 쓴다 — clip-path 처럼 매 프레임 다시 칠하지 않아 부드럽다. */
   var ap = document.getElementById('appear');
   function appearIntro(){
     var grid = ap.querySelector('.ap-grid'), W = innerWidth, H = innerHeight;
@@ -686,16 +699,17 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
     var html = '';
     for (var r = 0; r < rows; r++) {
       html += '<div class="ap-row" style="gap:' + wgap + 'px">';
-      for (var w = 0; w < reps; w++) html += r === cr && w === cw ? '<span class="ap-w ap-c"><i class="ap-hl"></i>' + T + '</span>' : '<span class="ap-w">' + T + '</span>';
+      for (var w = 0; w < reps; w++) html += r === cr && w === cw ? '<span class="ap-w ap-c"><i class="ap-hl"></i>' + T + '</span>'
+        : '<span class="ap-w">' + T + '<i class="ap-cv" style="transform-origin:' + (r % 2 === 0 ? '0%' : '100%') + ' 50%"></i></span>';
       html += '</div>';
     }
     grid.innerHTML = html;
-    var rowEls = [].slice.call(grid.children), hdr = document.getElementById('hdr'), heroEl = app.querySelector('.hero');
-    var tiles = heroEl ? [].slice.call(heroEl.querySelectorAll('.tile')) : [], lines = heroEl ? [].slice.call(heroEl.querySelectorAll('.hl>span')) : [];
-    if (heroEl) { A.utils.set(tiles, { y: '110%' }); A.utils.set(lines, { y: '105%' }); }
+    var rowEls = [].slice.call(grid.children), hdr = document.getElementById('hdr'), heroEl = app.querySelector('.hero'), lbls = [].slice.call(ap.querySelectorAll('.ap-lbl'));
+    var tiles = heroEl ? [].slice.call(heroEl.querySelectorAll('.tile')) : [], lines = heroEl ? [].slice.call(heroEl.querySelectorAll('.hl>span')) : [], side = heroEl ? [].slice.call(heroEl.querySelectorAll('.hero-side>*')) : [];
+    if (heroEl) { A.utils.set(tiles, { y: '110%' }); A.utils.set(lines, { y: '105%' }); A.utils.set(side, { opacity: 0, y: 14 }); }
     A.utils.set(hdr, { y: '-100%' });
-    var IN = 900, WIPE = 900, HOLD = 520, VIS = 'inset(0% 0% 0% 0%)';
-    var tl = A.createTimeline({ defaults: { ease: 'inOut(3)' }, onComplete: done });
+    var IN = 900, WIPE = 900, HOLD = 480, LIFT = 1000;
+    var tl = A.createTimeline({ defaults: { ease: 'inOut(3)' }, autoplay: false, onComplete: done });
     /* 1) 확대 + 줄마다 반대 방향으로 흐름 (가운데에서 멀수록 빠르게) */
     tl.add(grid, { scale: [1, 1.15], duration: IN }, 0).add(grid, { scale: [1.15, 1], duration: WIPE }, IN);
     rowEls.forEach(function(row, r){
@@ -703,24 +717,37 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
       A.utils.set(row, { x: home });
       tl.add(row, { x: [home, full], duration: IN }, 0);
       if (r === cr) tl.add(row, { x: [full, 0], duration: WIPE }, IN);   /* 가운데 줄은 제자리로 */
-      /* 2) 가운데 글자만 남기고 줄 방향대로 지워진다 */
-      var ltr = r % 2 === 0, hide = ltr ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)';
+      /* 2) 가운데 글자만 남기고 줄 방향대로 흰 덮개가 펼쳐져 지운다 */
+      var ltr = r % 2 === 0;
       [].slice.call(row.children).forEach(function(el, w){
         if (r === cr && w === cw) return;
         var t = (ltr ? w : reps - 1 - w) / (reps - 1);
-        tl.add(el, { clipPath: [VIS, hide], duration: WIPE * .5, ease: 'inOut(2)' }, IN + t * WIPE * .5);
+        tl.add(el.querySelector('.ap-cv'), { scaleX: [0, 1], duration: WIPE * .5, ease: 'inOut(2)' }, IN + t * WIPE * .5);
       });
     });
-    /* 3) 남은 글자에 라임 형광펜, 잠시 머문 뒤 막이 위로 걷히고 첫 화면이 올라온다 */
+    /* 3) 남은 글자에 라임 형광펜 → 막이 위로 걷히며(안의 글자는 덜 올라가 깊이감) 페이지가 아래에서 막을 밀어 올리듯 따라 올라온다 */
     var out = IN + WIPE + HOLD;
     tl.add(grid.querySelector('.ap-hl'), { scaleX: [0, 1], duration: 420, ease: 'out(3)' }, IN + WIPE - 80)
-      .add(ap, { clipPath: [VIS, 'inset(0% 0% 100% 0%)'], duration: 700, ease: 'inOut(3)' }, out);
-    if (heroEl) tl.add(tiles, { y: ['110%', '0%'], duration: 900, ease: 'out(4)', delay: A.stagger(60) }, out + 200).add(lines, { y: ['105%', '0%'], duration: 900, ease: 'out(4)', delay: A.stagger(90) }, out + 320);
-    tl.add(hdr, { y: ['-100%', '0%'], duration: 700, ease: 'out(4)' }, out + 300);
-    setTimeout(function(){ root.classList.remove('lock'); }, out);
-    function done(){ root.classList.remove('intro', 'lock'); ap.remove(); }
+      .add(ap, { y: ['0%', '-100%'], duration: LIFT, ease: 'inOut(4)' }, out)
+      .add([grid].concat(lbls), { y: [0, H * .55], duration: LIFT, ease: 'inOut(4)' }, out)
+      .add(app, { y: [H * .12, 0], duration: 1300, ease: 'out(4)' }, out + 120);
+    if (heroEl) tl.add(tiles, { y: ['110%', '0%'], duration: 1050, ease: 'out(4)', delay: A.stagger(70) }, out + 260)
+      .add(lines, { y: ['105%', '0%'], duration: 1050, ease: 'out(4)', delay: A.stagger(90) }, out + 380)
+      .add(side, { opacity: [0, 1], y: [14, 0], duration: 700, ease: 'out(3)', delay: A.stagger(80) }, out + 700);
+    tl.add(hdr, { y: ['-100%', '0%'], duration: 850, ease: 'out(4)' }, out + 460)
+      .call(function(){ root.classList.remove('lock'); }, out + LIFT);   /* 막이 다 걷힌 뒤에 스크롤을 푼다 */
+    function done(){ root.classList.remove('intro', 'lock'); ap.remove(); [app, hdr].concat(tiles, lines, side).forEach(function(el){ el.style.transform = ''; }); }
+    return tl;
   }
-  if (A && root.classList.contains('intro')) appearIntro(); else { root.classList.remove('intro', 'lock'); ap.remove(); }
+  if (A && root.classList.contains('intro')) {
+    var apOn = false, apGo = function(){
+      if (apOn) return; apOn = true;
+      var tl = appearIntro();
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ tl.play(); }); });
+    };
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(apGo);
+    setTimeout(apGo, 1500);   /* 글꼴이 늦으면 1.5초 뒤엔 그냥 시작 */
+  } else { root.classList.remove('intro', 'lock'); ap.remove(); }
 })();
 </script>
 </body>
