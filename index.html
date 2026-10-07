@@ -274,7 +274,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 .ap-c{position:relative;z-index:0}
 .ap-hl{position:absolute;left:calc(-.12em - 5px);right:calc(-.12em - 5px);top:calc(.02em - 5px);bottom:calc(-.06em - 5px);   /* 글자 둘레 여백 +5px */background:var(--lime);z-index:-1;transform:scaleX(0);transform-origin:0 50%}
 .ap-lbl{position:absolute;left:var(--g);right:var(--g);display:flex;justify-content:space-between;background:var(--ground);padding:6px 0}
-.ap-lbl.t{top:12px}.ap-lbl.b{bottom:12px}
+.ap-lbl.t{top:12px}   /* 아래 줄(학교·전공)은 입장 땐 없고, 홈에 들어올 때 첫 화면 오른쪽 아래(.hero-side)로 떠오른다 */
 .lock{overflow:hidden}
 
 /* 터치 화면: 마우스 올림 대신 누르는 순간 반응 */
@@ -345,7 +345,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
 </style>
 </head>
 <body>
-<div class="appear" id="appear" aria-hidden="true"><div class="ap-grid"></div><div class="ap-lbl t lbl"><span>DIAF</span><span>Digital Arts Festival — Archive</span></div><div class="ap-lbl b lbl muted"><span>Seoul Institute of the Arts</span><span>Digital Arts</span></div></div>
+<div class="appear" id="appear" aria-hidden="true"><div class="ap-grid"></div><div class="ap-lbl t lbl"><span>DIAF</span><span>Digital Arts Festival — Archive</span></div></div>
 <a class="skip" href="#app">본문으로 건너뛰기</a>
 <header class="hdr" id="hdr">
   <a class="display mark" href="#/" aria-label="DIAF 처음으로">DIAF</a>
