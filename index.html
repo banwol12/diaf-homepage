@@ -6,6 +6,13 @@
 <title>DIAF · Digital Arts Festival</title>
 <meta name="description" content="서울예술대학교 디지털아트전공 디지털아트 페스티벌(DIAF)의 연도별 기록.">
 <script>if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro', 'lock');</script>
+<script>/* 언어: 직접 고른 적이 있으면 그것, 아니면 접속한 나라가 한국이면 한국어 · 그 밖이면 영어 (/api/geo, Vercel). 모르면 브라우저 언어, 1.5초 넘으면 브라우저 언어로 */
+window.__lang = (function(){
+  var nav = /^ko\b/i.test(navigator.language || '') ? 'ko' : 'en';
+  try { var o = localStorage.getItem('lang'); if (o === 'ko' || o === 'en') return Promise.resolve(o); } catch (e) {}
+  var geo = fetch('/api/geo', { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){ return j && j.country ? (j.country === 'KR' ? 'ko' : 'en') : nav; });
+  return Promise.race([geo, new Promise(function(r){ setTimeout(function(){ r(nav); }, 1500); })]).catch(function(){ return nav; });
+})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&family=Source+Code+Pro:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
@@ -62,6 +69,8 @@ a.ul:hover,.slnav a:hover,.ftr a:hover,.lt a:hover{opacity:.5}
 .slnav span{color:var(--muted)}
 .slnav a.on{text-decoration:underline;text-underline-offset:4px}
 .side{display:flex;gap:16px;align-items:center;justify-content:flex-end}
+.lang-tg{all:unset;cursor:pointer;opacity:.7;transition:opacity .2s}.lang-tg:hover,.lang-tg:focus-visible{opacity:1}.lang-tg:focus-visible{outline:1px solid currentColor;outline-offset:3px}
+.lang-tg::after{content:"EN"}html[lang="en"] .lang-tg::after{content:"KO"}
 .clock{font-variant-numeric:tabular-nums;color:var(--muted)}
 .hdr .lbl{font-size:14px}
 .hdr .btn.sm{font-size:13px;padding:10px 18px}
@@ -354,6 +363,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   </nav>
   <div class="side">
     <span class="lbl clock" id="clock" aria-label="서울 현재 시각"></span>
+    <button class="lbl lang-tg" type="button" data-lang-toggle aria-label="Language · 한국어 / English"></button>
     <a class="btn sm" href="#/editions">Archive <i aria-hidden="true">→</i></a>
     <button class="lbl menu-btn" type="button" aria-haspopup="dialog" aria-controls="menu">Menu</button>
   </div>
@@ -424,7 +434,65 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
   function lbl(t, cls){ return '<span class="lbl ' + (cls || 'muted') + '">' + t + '</span>'; }
   function kv(e){ return e.kv ? '<img src="' + esc(e.kv) + '" alt="DIAF ' + e.year + ' 대표 이미지">' : ''; }
-  function words(html){ return html.split(' ').map(function(w){ return '<span class="w">' + w + '</span>'; }).join(' '); }
+  function words(html){ html = tr(html) || html; return html.split(' ').map(function(w){ return '<span class="w">' + w + '</span>'; }).join(' '); }
+
+  /* ── 영어: 한국 IP 는 한국어, 해외는 영어 (사용자 2026-10-12). 한국어 문장 그대로를 열쇠로 EN 에서 찾아 바꾼다.
+     낱말로 쪼개기(splitText·words) 전에 바꿔야 해서 init() 맨 앞과 words() 에서 부른다. 사전에 없으면 한국어 그대로 ── */
+  var LANG = 'ko', HANGUL = /[\uac00-\ud7a3]/, ORIG = new Map(), TA = ['alt', 'title', 'placeholder', 'aria-label', 'content'];
+  var EN = {
+    '서울예술대학교 디지털아트전공 디지털아트 페스티벌(DIAF)의 연도별 기록.': 'A year-by-year record of DIAF, the Digital Arts Festival of Digital Arts at Seoul Institute of the Arts.',
+    '본문으로 건너뛰기': 'Skip to content', 'DIAF 처음으로': 'DIAF home', '주요 메뉴': 'Main menu', '서울 현재 시각': 'Current time in Seoul', '메뉴': 'Menu', '푸터 메뉴': 'Footer menu',
+    '<mark>DIAF</mark>는 서울예술대학교 디지털아트전공이 해마다 여는 페스티벌입니다. 교수진과 재학생이 한 해 동안 만든 작업을 한 전시장에 모읍니다.': '<mark>DIAF</mark> is the annual festival of Digital Arts at Seoul Institute of the Arts. Faculty and students bring a year of work together in one exhibition space.',
+    '약': '~',
+    '전시장 공간 전체를 작품으로 씁니다. 빛과 소리, 센서가 관객의 움직임에 반응합니다.': 'The whole exhibition space becomes the work. Light, sound and sensors respond to visitors’ movement.',
+    '게임엔진으로 만든, 직접 플레이하는 작품입니다. 관객이 조작하는 만큼 이야기가 달라집니다.': 'Playable works built with game engines. The story changes with every move the visitor makes.',
+    '영상과 프로젝션, 코드로 만든 화면 작업입니다. 벽과 바닥, 물체 위에 이미지를 겹칩니다.': 'Screen-based work made with video, projection and code, layering images onto walls, floors and objects.',
+    '2D·3D 애니메이션과 영상 작업을 상영합니다.': 'Screenings of 2D/3D animation and video work.',
+    '실시간 영상·사운드와 몸의 움직임이 함께하는 공연입니다.': 'Performances where real-time video and sound meet the moving body.',
+    '해마다 하나의 주제를 정하고, 그해의 작업을 한 전시장에 모읍니다. 지금까지의 DIAF입니다.': 'Each year has one theme, and that year’s work comes together in one exhibition space. Here is every DIAF so far.',
+    '연도별 DIAF': 'DIAF by year', '( 자료 수집 중 )': '( collecting records )', '( 기록 준비 중 )': '( records in preparation )',
+    '서울예술대학교 예술공학센터(아텍)': 'Art & Technology Center (ATEC), Seoul Institute of the Arts',
+    '전시와 공연, 그리고 기록. 세 가지 방식으로 페스티벌을 엽니다.': 'Exhibition, performance and archive — the festival happens in three ways.',
+    '인스톨레이션과 인터랙티브 작품을 전시장에 설치합니다. 관객이 직접 만지고 움직이며 작품을 완성합니다.': 'Installations and interactive works fill the exhibition space. Visitors complete them by touching and moving.',
+    '미디어 퍼포먼스와 게임, 애니메이션 상영이 전시 기간 동안 함께 열립니다.': 'Media performances, games and animation screenings run throughout the exhibition.',
+    '전시가 끝나면 작품과 현장 기록을 웹사이트와 인스타그램, 유튜브에 남깁니다.': 'After the show, the works and documentation live on the website, Instagram and YouTube.',
+    '이전 연도': 'Previous year', '다음 연도': 'Next year', '역대 DIAF': 'All DIAF editions', '다른 해': 'Other years',
+    '디지털 환경 속 창작자 사이의 유기적 연결과 예술적 영감의 순환을 ‘호흡’에 빗대어 표현한 전시.': 'An exhibition likening the organic connections between creators in a digital world, and the circulation of artistic inspiration, to “breathing.”',
+    '인스톨레이션, 게임, 미디어아트, 애니메이션, 미디어 퍼포먼스 등 여러 장르로 풀어낸 전시.': 'An exhibition told through many genres — installation, games, media art, animation and media performance.',
+    '두 개 이상의 개체가 서로 연결되어 함께 작동하는 연동 과정을 주제로 한 전시.': 'An exhibition about two or more entities connecting and working together.',
+    '2025년 6월 20일 – 22일': 'June 20–22, 2025',
+    '120명 (교수진 8명, 재학생 약 100명)': '120 (8 faculty, about 100 students)',
+    '무료': 'Free', '[자료 필요]': '[data needed]', '[작품 제목]': '[Work title]', '[참여 학생]': '[Students]',
+    '새 페스티벌 소식과 현장 기록은 인스타그램에 올라옵니다.': 'News of the next festival and on-site records are posted on Instagram.',
+    '디지털아트전공 홈페이지 ↗': 'Digital Arts homepage ↗',
+    '작품 기록을 준비하고 있습니다.': 'Work records are being prepared.'
+  };
+  var EN_RE = [[/^약 (\d+)점$/, 'approx. $1 works'], [/^(\d+)점$/, '$1 works'], [/^DIAF (\d{4}) 정보$/, 'DIAF $1 details'], [/^DIAF (\d{4}) 대표 이미지$/, 'DIAF $1 key visual'], [/문\(門\)/g, 'Gate (門)'],
+    [/미디어 퍼포먼스/g, 'Media Performance'], [/인스톨레이션/g, 'Installation'], [/미디어아트/g, 'Media Art'], [/애니메이션/g, 'Animation'], [/게임/g, 'Game']];   /* 장르 이름이 든 목록(쉼표·슬래시)은 이름만 바꾼다 */
+  function tr(s){
+    if (LANG !== 'en') return null;
+    var t = s.trim(); if (!t || !HANGUL.test(t)) return null;
+    var en = EN[t];
+    if (en === undefined) { var v = t; EN_RE.forEach(function(r){ v = v.replace(r[0], r[1]); }); if (v !== t) en = v; }
+    return en === undefined ? null : s.replace(t, function(){ return en; });
+  }
+  function walk(root){
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT), n = root;
+    for (; n; n = w.nextNode()) {
+      if (n.nodeType === 3) { if (!/SCRIPT|STYLE/.test(n.parentNode.nodeName)) { var v = tr(n.nodeValue); if (v !== null) { ORIG.set(n, n.nodeValue); n.nodeValue = v; } } }
+      else TA.forEach(function(a){ var v0 = n.getAttribute(a), v = v0 && tr(v0); if (v) { var o = ORIG.get(n) || {}; o[a] = v0; ORIG.set(n, o); n.setAttribute(a, v); } });
+    }
+  }
+  function setLang(l){
+    LANG = l; root.lang = l;
+    if (l === 'en') walk(document.head); else { ORIG.forEach(function(o, n){ if (n.nodeType === 3) n.nodeValue = o; else for (var a in o) n.setAttribute(a, o[a]); }); ORIG.clear(); }
+  }
+  document.addEventListener('click', function(ev){
+    if (!ev.target.closest('[data-lang-toggle]')) return;
+    var l = LANG === 'en' ? 'ko' : 'en';
+    try { localStorage.setItem('lang', l); } catch (e) {}
+    setLang(l); route();                                                                /* 첫 화면·연도 페이지는 다시 그리면 그 언어로 */
+  });
   function yearsOf(m){ return EDITIONS.filter(function(e){ return (e.genres || '').split(', ').indexOf(m.ko) >= 0; }).map(function(e){ return e.year; }); }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
 
@@ -525,14 +593,14 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
     med = i;
     app.querySelectorAll('.sl').forEach(function(b){ var on = +b.getAttribute('data-i') === i; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     var d = document.getElementById('sld'); if (!d) return;
-    d.innerHTML = medDetail(i);
+    d.innerHTML = medDetail(i); if (LANG === 'en') walk(d);
     if (A) A.animate([].slice.call(d.children), { opacity: [0, 1], y: [8, 0], duration: 450, ease: 'out(3)', delay: A.stagger(40) });
   }
   /* ── 해마다의 기록 넘기기 ── */
   function setNote(i){
     note = (i + EDITIONS.length) % EDITIONS.length;
     var f = document.getElementById('note'), c = document.getElementById('ntc'); if (!f) return;
-    f.innerHTML = noteBody(note); c.textContent = pad(note + 1) + ' / ' + pad(EDITIONS.length);
+    f.innerHTML = noteBody(note); if (LANG === 'en') walk(f); c.textContent = pad(note + 1) + ' / ' + pad(EDITIONS.length);
     if (A) A.animate([].slice.call(f.children), { opacity: [0, 1], y: [16, 0], duration: 600, ease: 'out(4)', delay: A.stagger(80) });
   }
 
@@ -561,6 +629,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   }
 
   function init(){
+    if (LANG === 'en') walk(document.body);
     if (A) {
       app.querySelectorAll('.rw').forEach(function(el){ el._w = A.splitText(el, { words: { wrap: 'clip' } }).words; A.utils.set(el._w, { y: '100%' }); });
       var tlEl = app.querySelector('.tl');
@@ -580,7 +649,7 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   function route(){
     var h = location.hash.replace(/^#\/?/, ''), e = EDITIONS.filter(function(x){ return String(x.year) === h; })[0];
     if (menu.open) menu.close();
-    if (e) { Edition(e); window.scrollTo(0, 0); document.title = 'DIAF ' + e.year + ' · ' + e.theme; }
+    if (e) { Edition(e); window.scrollTo(0, 0); var dt = 'DIAF ' + e.year + ' · ' + e.theme; document.title = tr(dt) || dt; }
     else { Home(); document.title = 'DIAF · Digital Arts Festival'; var t = h && document.getElementById(h); if (t) t.scrollIntoView(); else window.scrollTo(0, 0); }
     document.querySelectorAll('.slnav a').forEach(function(a){ var on = a.getAttribute('href') === '#/' + h; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
     init();
@@ -683,71 +752,74 @@ a.pt:hover::after,a.pt:focus-visible::after{clip-path:inset(0 0 0 0);transition-
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   var h0 = location.hash.replace(/^#\/?/, '');
   if (h0 && !EDITIONS.some(function(x){ return String(x.year) === h0; })) history.replaceState(null, '', location.pathname + location.search + '#/');
-  route();
-  window.scrollTo(0, 0);
+  window.__lang.then(function(l){                                                       /* 언어가 정해진 뒤 그린다 (한국어가 잠깐 보였다 바뀌지 않게) */
+    setLang(l);
+    route();
+    window.scrollTo(0, 0);
 
-  /* ── 입장 (Originkit Appear Text 이식) ──
-     글꼴이 다 온 뒤 격자를 만들고, 화면을 두 번 그린 다음 재생한다 (먼저 재생하면 첫 장면이 건너뛰고, 도중에 글꼴이 바뀌면 전체를 다시 배치하며 끊겼다).
-     지우기·막 걷기·페이지 올라오기는 모두 transform 만 쓴다 — clip-path 처럼 매 프레임 다시 칠하지 않아 부드럽다. */
-  var ap = document.getElementById('appear');
-  function appearIntro(){
-    var grid = ap.querySelector('.ap-grid'), W = innerWidth, H = innerHeight;
-    var fs = Math.round(Math.max(30, Math.min(96, W * .062))), gap = Math.round(fs * .3), wgap = Math.round(fs * .4);
-    var rows = Math.ceil(H / (fs + gap)) + 2; if (rows % 2 === 0) rows++;
-    var reps = 5, cr = (rows - 1) / 2, cw = (reps - 1) / 2, T = 'Digital Arts Festival', shift = fs * 1.3;
-    grid.style.fontSize = fs + 'px'; grid.style.gap = gap + 'px';
-    var html = '';
-    for (var r = 0; r < rows; r++) {
-      html += '<div class="ap-row" style="gap:' + wgap + 'px">';
-      for (var w = 0; w < reps; w++) html += r === cr && w === cw ? '<span class="ap-w ap-c"><i class="ap-hl"></i>' + T + '</span>'
-        : '<span class="ap-w">' + T + '<i class="ap-cv" style="transform-origin:' + (r % 2 === 0 ? '0%' : '100%') + ' 50%"></i></span>';
-      html += '</div>';
-    }
-    grid.innerHTML = html;
-    var rowEls = [].slice.call(grid.children), hdr = document.getElementById('hdr'), heroEl = app.querySelector('.hero'), lbls = [].slice.call(ap.querySelectorAll('.ap-lbl'));
-    var tiles = heroEl ? [].slice.call(heroEl.querySelectorAll('.tile')) : [], lines = heroEl ? [].slice.call(heroEl.querySelectorAll('.hl>span')) : [], side = heroEl ? [].slice.call(heroEl.querySelectorAll('.hero-side>*')) : [];
-    if (heroEl) { A.utils.set(tiles, { y: '110%' }); A.utils.set(lines, { y: '105%' }); A.utils.set(side, { opacity: 0, y: 14 }); }
-    A.utils.set(hdr, { y: '-100%' });
-    var IN = 900, WIPE = 900, HOLD = 480, LIFT = 1000;
-    var tl = A.createTimeline({ defaults: { ease: 'inOut(3)' }, autoplay: false, onComplete: done });
-    /* 1) 확대 + 줄마다 반대 방향으로 흐름 (가운데에서 멀수록 빠르게) */
-    tl.add(grid, { scale: [1, 1.15], duration: IN }, 0).add(grid, { scale: [1.15, 1], duration: WIPE }, IN);
-    rowEls.forEach(function(row, r){
-      var d = r - cr, dir = r % 2 === 0 ? 1 : -1, full = dir * shift * (.7 + (Math.abs(d) % 3) * .45), home = full * .4;
-      A.utils.set(row, { x: home });
-      tl.add(row, { x: [home, full], duration: IN }, 0);
-      if (r === cr) tl.add(row, { x: [full, 0], duration: WIPE }, IN);   /* 가운데 줄은 제자리로 */
-      /* 2) 가운데 글자만 남기고 줄 방향대로 흰 덮개가 펼쳐져 지운다 */
-      var ltr = r % 2 === 0;
-      [].slice.call(row.children).forEach(function(el, w){
-        if (r === cr && w === cw) return;
-        var t = (ltr ? w : reps - 1 - w) / (reps - 1);
-        tl.add(el.querySelector('.ap-cv'), { scaleX: [0, 1], duration: WIPE * .5, ease: 'inOut(2)' }, IN + t * WIPE * .5);
+    /* ── 입장 (Originkit Appear Text 이식) ──
+       글꼴이 다 온 뒤 격자를 만들고, 화면을 두 번 그린 다음 재생한다 (먼저 재생하면 첫 장면이 건너뛰고, 도중에 글꼴이 바뀌면 전체를 다시 배치하며 끊겼다).
+       지우기·막 걷기·페이지 올라오기는 모두 transform 만 쓴다 — clip-path 처럼 매 프레임 다시 칠하지 않아 부드럽다. */
+    var ap = document.getElementById('appear');
+    function appearIntro(){
+      var grid = ap.querySelector('.ap-grid'), W = innerWidth, H = innerHeight;
+      var fs = Math.round(Math.max(30, Math.min(96, W * .062))), gap = Math.round(fs * .3), wgap = Math.round(fs * .4);
+      var rows = Math.ceil(H / (fs + gap)) + 2; if (rows % 2 === 0) rows++;
+      var reps = 5, cr = (rows - 1) / 2, cw = (reps - 1) / 2, T = 'Digital Arts Festival', shift = fs * 1.3;
+      grid.style.fontSize = fs + 'px'; grid.style.gap = gap + 'px';
+      var html = '';
+      for (var r = 0; r < rows; r++) {
+        html += '<div class="ap-row" style="gap:' + wgap + 'px">';
+        for (var w = 0; w < reps; w++) html += r === cr && w === cw ? '<span class="ap-w ap-c"><i class="ap-hl"></i>' + T + '</span>'
+          : '<span class="ap-w">' + T + '<i class="ap-cv" style="transform-origin:' + (r % 2 === 0 ? '0%' : '100%') + ' 50%"></i></span>';
+        html += '</div>';
+      }
+      grid.innerHTML = html;
+      var rowEls = [].slice.call(grid.children), hdr = document.getElementById('hdr'), heroEl = app.querySelector('.hero'), lbls = [].slice.call(ap.querySelectorAll('.ap-lbl'));
+      var tiles = heroEl ? [].slice.call(heroEl.querySelectorAll('.tile')) : [], lines = heroEl ? [].slice.call(heroEl.querySelectorAll('.hl>span')) : [], side = heroEl ? [].slice.call(heroEl.querySelectorAll('.hero-side>*')) : [];
+      if (heroEl) { A.utils.set(tiles, { y: '110%' }); A.utils.set(lines, { y: '105%' }); A.utils.set(side, { opacity: 0, y: 14 }); }
+      A.utils.set(hdr, { y: '-100%' });
+      var IN = 900, WIPE = 900, HOLD = 480, LIFT = 1000;
+      var tl = A.createTimeline({ defaults: { ease: 'inOut(3)' }, autoplay: false, onComplete: done });
+      /* 1) 확대 + 줄마다 반대 방향으로 흐름 (가운데에서 멀수록 빠르게) */
+      tl.add(grid, { scale: [1, 1.15], duration: IN }, 0).add(grid, { scale: [1.15, 1], duration: WIPE }, IN);
+      rowEls.forEach(function(row, r){
+        var d = r - cr, dir = r % 2 === 0 ? 1 : -1, full = dir * shift * (.7 + (Math.abs(d) % 3) * .45), home = full * .4;
+        A.utils.set(row, { x: home });
+        tl.add(row, { x: [home, full], duration: IN }, 0);
+        if (r === cr) tl.add(row, { x: [full, 0], duration: WIPE }, IN);   /* 가운데 줄은 제자리로 */
+        /* 2) 가운데 글자만 남기고 줄 방향대로 흰 덮개가 펼쳐져 지운다 */
+        var ltr = r % 2 === 0;
+        [].slice.call(row.children).forEach(function(el, w){
+          if (r === cr && w === cw) return;
+          var t = (ltr ? w : reps - 1 - w) / (reps - 1);
+          tl.add(el.querySelector('.ap-cv'), { scaleX: [0, 1], duration: WIPE * .5, ease: 'inOut(2)' }, IN + t * WIPE * .5);
+        });
       });
-    });
-    /* 3) 남은 글자에 라임 형광펜 → 막이 위로 걷히며(안의 글자는 덜 올라가 깊이감) 페이지가 아래에서 막을 밀어 올리듯 따라 올라온다 */
-    var out = IN + WIPE + HOLD;
-    tl.add(grid.querySelector('.ap-hl'), { scaleX: [0, 1], duration: 420, ease: 'out(3)' }, IN + WIPE - 80)
-      .add(ap, { y: ['0%', '-100%'], duration: LIFT, ease: 'inOut(4)' }, out)
-      .add([grid].concat(lbls), { y: [0, H * .55], duration: LIFT, ease: 'inOut(4)' }, out)
-      .add(app, { y: [H * .12, 0], duration: 1300, ease: 'out(4)' }, out + 120);
-    if (heroEl) tl.add(tiles, { y: ['110%', '0%'], duration: 1050, ease: 'out(4)', delay: A.stagger(70) }, out + 260)
-      .add(lines, { y: ['105%', '0%'], duration: 1050, ease: 'out(4)', delay: A.stagger(90) }, out + 380)
-      .add(side, { opacity: [0, 1], y: [14, 0], duration: 700, ease: 'out(3)', delay: A.stagger(80) }, out + 700);
-    tl.add(hdr, { y: ['-100%', '0%'], duration: 850, ease: 'out(4)' }, out + 460)
-      .call(function(){ root.classList.remove('lock'); }, out + LIFT);   /* 막이 다 걷힌 뒤에 스크롤을 푼다 */
-    function done(){ root.classList.remove('intro', 'lock'); ap.remove(); [app, hdr].concat(tiles, lines, side).forEach(function(el){ el.style.transform = ''; }); }
-    return tl;
-  }
-  if (A && root.classList.contains('intro')) {
-    var apOn = false, apGo = function(){
-      if (apOn) return; apOn = true;
-      var tl = appearIntro();
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){ tl.play(); }); });
-    };
-    (document.fonts ? document.fonts.ready : Promise.resolve()).then(apGo);
-    setTimeout(apGo, 1500);   /* 글꼴이 늦으면 1.5초 뒤엔 그냥 시작 */
-  } else { root.classList.remove('intro', 'lock'); ap.remove(); }
+      /* 3) 남은 글자에 라임 형광펜 → 막이 위로 걷히며(안의 글자는 덜 올라가 깊이감) 페이지가 아래에서 막을 밀어 올리듯 따라 올라온다 */
+      var out = IN + WIPE + HOLD;
+      tl.add(grid.querySelector('.ap-hl'), { scaleX: [0, 1], duration: 420, ease: 'out(3)' }, IN + WIPE - 80)
+        .add(ap, { y: ['0%', '-100%'], duration: LIFT, ease: 'inOut(4)' }, out)
+        .add([grid].concat(lbls), { y: [0, H * .55], duration: LIFT, ease: 'inOut(4)' }, out)
+        .add(app, { y: [H * .12, 0], duration: 1300, ease: 'out(4)' }, out + 120);
+      if (heroEl) tl.add(tiles, { y: ['110%', '0%'], duration: 1050, ease: 'out(4)', delay: A.stagger(70) }, out + 260)
+        .add(lines, { y: ['105%', '0%'], duration: 1050, ease: 'out(4)', delay: A.stagger(90) }, out + 380)
+        .add(side, { opacity: [0, 1], y: [14, 0], duration: 700, ease: 'out(3)', delay: A.stagger(80) }, out + 700);
+      tl.add(hdr, { y: ['-100%', '0%'], duration: 850, ease: 'out(4)' }, out + 460)
+        .call(function(){ root.classList.remove('lock'); }, out + LIFT);   /* 막이 다 걷힌 뒤에 스크롤을 푼다 */
+      function done(){ root.classList.remove('intro', 'lock'); ap.remove(); [app, hdr].concat(tiles, lines, side).forEach(function(el){ el.style.transform = ''; }); }
+      return tl;
+    }
+    if (A && root.classList.contains('intro')) {
+      var apOn = false, apGo = function(){
+        if (apOn) return; apOn = true;
+        var tl = appearIntro();
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ tl.play(); }); });
+      };
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(apGo);
+      setTimeout(apGo, 1500);   /* 글꼴이 늦으면 1.5초 뒤엔 그냥 시작 */
+    } else { root.classList.remove('intro', 'lock'); ap.remove(); }
+  });
 })();
 </script>
 </body>
